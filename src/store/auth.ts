@@ -22,7 +22,14 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      user: null,
+      user: {
+        id: 360,
+        email: "player360@gmail.com",
+        firstName: "Player",
+        lastName: "360",
+        username: "player360",
+        avatar: "test.png",
+      },
       isLoading: true,
       isAuthenticated: false,
       login: ({ user, access, refresh }) => {

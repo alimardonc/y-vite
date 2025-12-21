@@ -7,6 +7,13 @@ export interface ICourse {
   description: string;
   tech: string;
 }
+// export interface FCourse {
+//   name: string;
+//   content: string;
+//   type: string; //(select)
+//   language: string;
+//   description: string;
+// }
 
 export interface IUser {
   id: number;
