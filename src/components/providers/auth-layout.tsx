@@ -17,8 +17,8 @@ export default function AuthLayout() {
     }
   }, [isAuth]);
 
-  if (!isAuth) return <Navigate to="/login" />;
-  if (isLoading)
+  if (isAuth) return <Navigate to="/login" />;
+  if (!isLoading)
     return (
       <Centered>
         <Spinner className="size-10" />
