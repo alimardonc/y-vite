@@ -2,17 +2,27 @@ import MarkdownPreview from "@uiw/react-markdown-preview";
 import { useTheme } from "./theme-provider";
 import { cn } from "@/lib/utils";
 
-const MarkdownView = ({ content }: { content: string }) => {
+interface IProps {
+  content: string;
+  className?: string;
+  closeBtn?: React.ReactNode;
+}
+
+const MarkdownView = ({ content, className, closeBtn }: IProps) => {
   const { theme } = useTheme();
   return (
     <div
       className={cn(
         "flex flex-col mm:h-[calc(100dvh-136px)] mm:overflow-y-auto mm:pr-2",
+        className,
       )}
     >
+      {closeBtn && <div className="flex justify-end">{closeBtn}</div>}
       <MarkdownPreview
         source={content}
-        style={{ background: "transparent" }}
+        style={{
+          background: "transparent",
+        }}
         wrapperElement={{
           "data-color-mode": theme == "light" ? "light" : "dark",
         }}
