@@ -1,4 +1,5 @@
 import Markdown from "@/components/blocks/course-contents/markdown";
+import QuizTest from "@/components/blocks/course-contents/quiz-test";
 import type { ICourseContentTypes } from "@/types";
 
 interface IProps {
@@ -7,22 +8,15 @@ interface IProps {
     value: string;
     onChange: (value: string) => void;
   };
-  isPreview: boolean;
-  onClosePreview: () => void;
 }
 
-const Contents = ({ type, field, isPreview, onClosePreview }: IProps) => {
+const Contents = ({ type, field }: IProps) => {
   return (
-    type == "markdown" && (
-      <Markdown
-        field={field}
-        onClosePreview={onClosePreview}
-        isPreview={isPreview}
-      />
-    )
+    <>
+      {type == "markdown" && <Markdown field={field} />}
+      {type == "quiz-test" && <QuizTest />}
+    </>
   );
-
-  return null;
 };
 
 export default Contents;
