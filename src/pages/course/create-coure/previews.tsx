@@ -1,4 +1,5 @@
 import MarkdownPreview from "@/components/blocks/course-contents/previews/markdown";
+import QuizPreview from "@/components/blocks/course-contents/previews/quiz";
 import type { ICourseContentTypes } from "@/types";
 
 interface IProps {
@@ -18,6 +19,7 @@ const Previews = ({ type, onClosePreview, isPreview, value }: IProps) => {
           value={value}
         />
       )}
+      {type == "quiz-test" && <QuizPreview value={value} />}
     </>
   );
 };

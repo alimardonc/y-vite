@@ -27,3 +27,9 @@ export interface IUser {
 export const COURSE_CONTENT_TYPES = ["markdown", "quiz-test"] as const;
 
 export type ICourseContentTypes = (typeof COURSE_CONTENT_TYPES)[number];
+
+export interface IQuizTypes {
+  quest: string;
+  variants: { value: string }[];
+  answer: number;
+}

@@ -23,8 +23,10 @@ import { Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import Contents from "./contents";
-import { COURSE_CONTENT_TYPES } from "@/types";
+import { COURSE_CONTENT_TYPES, type IQuizTypes } from "@/types";
 import Previews from "./previews";
+import QuizTest from "@/components/blocks/course-contents/quiz-test";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   name: z.string().min(3).max(50),
@@ -36,17 +38,40 @@ const formSchema = z.object({
 const CreateCourse = () => {
   const [isPending, setIsPending] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
+  const [quizs, setQuizs] = useState<IQuizTypes[]>([
+    {
+      quest: "Birinchi savol",
+      variants: [
+        { value: "A) Variant 1" },
+        { value: "B) Variant 2" },
+        { value: "C) Variant 3" },
+      ],
+      answer: 0,
+    },
+    {
+      quest: "Ikkinchi savol",
+      variants: [
+        { value: "A) Variant A" },
+        { value: "B) Variant B" },
+        { value: "C) Variant C" },
+      ],
+      answer: 1,
+    },
+  ]);
+
+  console.log(quizs);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      type: "markdown",
+      type: "quiz-test",
       language: "",
       description:
         '# Title\njavascript\n\n```js\nfunction hello(){\n     console.log("Hello");\n}\nhello();\n// Hello\n```\n> blockquote\n\n![The San Juan Mountains are beautiful](https://cdn.pixabay.com/photo/2023/12/16/19/33/christmas-8453173_1280.jpg "San Juan Mountains")',
     },
   });
+  const contentType = form.watch("type");
 
   const onClosePreview = useCallback(() => {
     setIsPreview(false);
@@ -133,28 +158,50 @@ const CreateCourse = () => {
               </Field>
             )}
           />
+
+          {contentType === "markdown" && (
+            <>
+              <p className="text-xl text-center font-bold">Markdown</p>
+              <Controller
+                name="description"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid} className="">
+                    <FieldLabel htmlFor="form-rhf-demo-description">
+                      Content
+                    </FieldLabel>
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                    {/*---------------------------------- Contents --------------------------------------*/}
+                    <Contents field={field} type={contentType} />
+                  </Field>
+                )}
+              />
+            </>
+          )}
+
+          {contentType === "quiz-test" && (
+            <>
+              <p className="text-xl text-center font-bold">Quiz</p>
+              <QuizTest quizs={quizs} setQuizs={setQuizs} />
+            </>
+          )}
         </div>
 
-        <Controller
-          name="description"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid} className="">
-              <FieldLabel htmlFor="form-rhf-demo-description">
-                Content
-              </FieldLabel>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              {/*---------------------------------- Contents --------------------------------------*/}
-              <Contents field={field} type={form.watch("type")} />
-            </Field>
+        <div
+          className={cn(
+            (contentType === "markdown" ? "grid-cols-2" : "") +
+              " grid xl:grid-cols-1 w-full gap-3",
           )}
-        />
-
-        <div className="grid grid-cols-2 xl:grid-cols-1 w-full gap-3">
+        >
           <Button
             variant={"outline"}
             type="button"
-            className="w-full max-xl:flex hidden"
+            className={cn(
+              (contentType === "markdown" ? "max-xl:flex" : "") +
+                " w-full hidden",
+            )}
             onClick={() => setIsPreview(true)}
           >
             {isPreview ? <Eye /> : <EyeOff />}
@@ -175,7 +222,7 @@ const CreateCourse = () => {
 
       {/*  Preview   */}
       <Previews
-        type={form.watch("type")}
+        type={contentType}
         isPreview={isPreview}
         onClosePreview={onClosePreview}
         value={form.watch("description")}
