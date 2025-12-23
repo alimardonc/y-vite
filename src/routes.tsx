@@ -9,7 +9,7 @@ import Login from "./pages/login";
 import AuthLayout from "./components/providers/auth-layout";
 import Profile from "./pages/profile/profile";
 import LoginLayout from "./components/providers/login-layout";
-import CreateCourse from "./pages/course/create-course";
+import CreateCourse from "./pages/course/create-coure/create-course";
 
 export const router = createBrowserRouter([
   {
