@@ -118,9 +118,9 @@ const CreateCourse = () => {
 
                     <SelectContent>
                       <SelectGroup>
-                        {[0, 1, 2, 3].map((index) => (
-                          <SelectItem key={index} value={`content-${index}`}>
-                            Content {index + 1}
+                        {COURSE_CONTENT_TYPES.map((content) => (
+                          <SelectItem key={content} value={content}>
+                            {content}
                           </SelectItem>
                         ))}
                       </SelectGroup>
