@@ -24,6 +24,7 @@ import toast from "react-hot-toast";
 import { z } from "zod";
 import Contents from "./contents";
 import { COURSE_CONTENT_TYPES } from "@/types";
+import Previews from "./previews";
 
 const formSchema = z.object({
   name: z.string().min(3).max(50),
@@ -144,12 +145,7 @@ const CreateCourse = () => {
               </FieldLabel>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               {/*---------------------------------- Contents --------------------------------------*/}
-              <Contents
-                field={field}
-                isPreview={isPreview}
-                onClosePreview={onClosePreview}
-                type={form.watch("type")}
-              />
+              <Contents field={field} type={form.watch("type")} />
             </Field>
           )}
         />
@@ -176,6 +172,14 @@ const CreateCourse = () => {
           </Button>
         </div>
       </form>
+
+      {/*  Preview   */}
+      <Previews
+        type={form.watch("type")}
+        isPreview={isPreview}
+        onClosePreview={onClosePreview}
+        value={form.watch("description")}
+      />
     </div>
   );
 };
