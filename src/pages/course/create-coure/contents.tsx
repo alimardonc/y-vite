@@ -12,17 +12,15 @@ interface IProps {
 }
 
 const Contents = ({ type, field, isPreview, onClosePreview }: IProps) => {
-  return (
-    type == "markdown" && (
-      <Markdown
-        field={field}
-        onClosePreview={onClosePreview}
-        isPreview={isPreview}
-      />
-    )
-  );
-
-  return null;
+  return type === "markdown" ? (
+    <Markdown
+      field={field}
+      onClosePreview={onClosePreview}
+      isPreview={isPreview}
+    />
+  ) : type === "quiz-test" ? (
+    <>Quiz</>
+  ) : null;
 };
 
 export default Contents;
