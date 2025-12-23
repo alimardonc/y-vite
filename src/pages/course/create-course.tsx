@@ -16,15 +16,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
-import { Textarea } from "@/components/ui/textarea";
 import { axiosClient } from "@/lib/axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Eye, EyeOff, Maximize2 } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
+import MDEditor from "@/components/ui/md-editor";
 
 const formSchema = z.object({
   name: z.string().min(3).max(50),
@@ -36,7 +36,6 @@ const formSchema = z.object({
 const CreateCourse = () => {
   const [isPending, setIsPending] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -45,7 +44,7 @@ const CreateCourse = () => {
       type: "",
       language: "",
       description:
-        '# Title\njavascript\n\n```js\nfunction hello(){\n     console.log("Hello");\n}\nhello();\n// Hello\n```',
+        '# Title\njavascript\n\n```js\nfunction hello(){\n     console.log("Hello");\n}\nhello();\n// Hello\n```\n> blockquote\n\n![The San Juan Mountains are beautiful](https://cdn.pixabay.com/photo/2023/12/16/19/33/christmas-8453173_1280.jpg "San Juan Mountains")',
     },
   });
 
@@ -128,32 +127,11 @@ const CreateCourse = () => {
           name="description"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid} className="flex-1">
+            <Field data-invalid={fieldState.invalid} className="">
               <FieldLabel htmlFor="form-rhf-demo-description">
-                Description
+                Content
               </FieldLabel>
-              <div
-                className={cn(
-                  "relative h-full",
-                  isExpanded &&
-                    "h-full w-full fixed top-0 left-0 bg-card! z-50 transition-all duration-300",
-                )}
-              >
-                <Textarea
-                  placeholder="about your content..."
-                  {...field}
-                  className={cn("h-full resize-none")}
-                />
-                <Button
-                  className="absolute right-2 top-2 z-51"
-                  type="button"
-                  size="icon"
-                  title="Expand"
-                  onClick={() => setIsExpanded((prev) => !prev)}
-                >
-                  <Maximize2 />
-                </Button>
-              </div>
+              <MDEditor field={field} />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
@@ -185,8 +163,9 @@ const CreateCourse = () => {
       <MarkdownView
         content={form.watch("description")}
         className={cn(
+          "h-dvh! py-2",
           isPreview
-            ? "max-xl:fixed w-full h-dvh! top-0 left-0 bg-background p-2 z-100"
+            ? "max-xl:fixed w-full top-0 left-0 bg-background z-100"
             : "max-xl:hidden",
         )}
         closeBtn={

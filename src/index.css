@@ -115,7 +115,7 @@
 
 * {
     user-select: none;
-    /*outline: none;*/
+    outline: none;
 }
 p img {
     width: 100%;
