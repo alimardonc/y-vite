@@ -54,6 +54,10 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
   const saveCurrentQuiz = () => {
     const values = form.getValues();
 
+    const filteredVariants = values.variants.filter(
+      (v) => v.value.trim().length > 0,
+    );
+
     setQuizs((prev) => {
       const copy = [...prev];
 
@@ -61,7 +65,7 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
         ...copy[currentQuizIndex],
         quest: values.quest,
         answer: values.answer,
-        variants: values.variants,
+        variants: filteredVariants,
       };
 
       return copy;
@@ -120,16 +124,19 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
                     const isLast = index === fields.length - 1;
                     const hasValue = field.value?.trim().length > 0;
 
-                    if (isLast && hasValue) {
+                    const values = form.getValues("variants");
+                    const hasPrev =
+                      index === 0 ||
+                      values[index - 1]?.value?.trim().length > 0;
+
+                    if (isLast && hasValue && hasPrev) {
                       append(
                         { value: "" },
-                        {
-                          focusIndex: index,
-                          focusName: `variants.${index}.value`,
-                        },
+                        { shouldFocus: false, focusIndex: index - 1 },
                       );
                     }
                   }}
+                  className="h-10"
                   placeholder={`Variant ${String.fromCharCode(65 + index)}`}
                 />
                 {fields.length - 1 !== index ? (
