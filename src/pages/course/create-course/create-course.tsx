@@ -45,6 +45,13 @@ const formSchema = z.discriminatedUnion("type", [
 const CreateCourse = () => {
   const [isPending, setIsPending] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
+  const [quizs, setQuizs] = useState<QuizType[]>([
+    {
+      quest: "",
+      answer: 0,
+      variants: [{ value: "" }, { value: "" }, { value: "" }],
+    },
+  ]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -146,41 +153,39 @@ const CreateCourse = () => {
             )}
           />
 
-          <Controller
-            name="content"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel
-                  htmlFor="form-rhf-demo-description"
-                  className="font-bold text-2xl"
-                >
-                  Content
-                </FieldLabel>
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-                {/*---------------------------------- Contents --------------------------------------*/}
-                <Contents
-                  {...(contentType === "markdown"
-                    ? {
-                        field: {
-                          value: (field.value as string) ?? "",
-                          onChange: field.onChange,
-                        },
-                        type: "markdown" as const,
-                      }
-                    : {
-                        field: {
-                          value: (field.value as QuizType[]) ?? [],
-                          onChange: field.onChange,
-                        },
-                        type: "quiz-test" as const,
-                      })}
-                />
-              </Field>
-            )}
-          />
+          {contentType === "markdown" && (
+            <Controller
+              name="content"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel
+                    htmlFor="form-rhf-demo-description"
+                    className="font-bold text-2xl"
+                  >
+                    Content
+                  </FieldLabel>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                  <Contents
+                    field={{
+                      value: (field.value as string) ?? "",
+                      onChange: field.onChange,
+                    }}
+                    type="markdown"
+                  />
+                </Field>
+              )}
+            />
+          )}
+
+          {contentType === "quiz-test" && (
+            <Contents
+              field={{ value: quizs, onChange: setQuizs }}
+              type="quiz-test"
+            />
+          )}
         </div>
 
         <div className={cn("grid-cols-2 grid xl:grid-cols-1 w-full gap-3")}>
