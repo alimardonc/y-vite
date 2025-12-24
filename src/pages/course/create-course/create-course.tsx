@@ -50,7 +50,7 @@ const CreateCourse = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      type: "markdown",
+      type: "quiz-test",
       language: "",
       content: null,
     },

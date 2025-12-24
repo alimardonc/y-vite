@@ -9,7 +9,8 @@ import Login from "./pages/login";
 import AuthLayout from "./components/providers/auth";
 import Profile from "./pages/profile/profile";
 import LoginLayout from "./components/providers/login";
-import CreateCourse from "./pages/course/create-coure/create-course";
+import CreateCourse from "./pages/course/create-course/create-course";
+import CreateQuiz from "./pages/quiz/create-quiz";
 
 export const router = createBrowserRouter([
   {
@@ -52,6 +53,10 @@ export const router = createBrowserRouter([
       {
         path: "/course/create",
         Component: CreateCourse,
+      },
+      {
+        path: "/quiz/create",
+        Component: CreateQuiz,
       },
       {
         path: "*",

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { QuizType } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +11,7 @@ import z from "zod";
 
 interface IProps {
   quizs: QuizType[];
-  setQuizs: (quizs: QuizType[]) => void;
+  setQuizs: React.Dispatch<React.SetStateAction<QuizType[]>>;
 }
 
 const formSchema = z.object({
@@ -19,7 +19,7 @@ const formSchema = z.object({
   variants: z
     .array(
       z.object({
-        value: z.string().min(1, "Variant bo'sh bo'lishi mumkin emas"),
+        value: z.string(),
       }),
     )
     .min(2, "Kamida 2 variant")
@@ -34,79 +34,52 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      quest: "",
-      variants: [{ value: "" }],
-      answer: 0,
-    },
+    defaultValues: quizs[currentQuizIndex],
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control: form.control,
     name: "variants",
   });
-
-  // 1. Quiz o'zgartirganda formani yangilash
-  useEffect(() => {
-    if (quizs.length > 0 && quizs[currentQuizIndex]) {
-      const currentQuiz = quizs[currentQuizIndex];
-
-      remove();
-
-      currentQuiz.variants.forEach((variant) => {
-        append({ value: variant.value });
-      });
-
-      form.setValue("quest", currentQuiz.quest);
-      form.setValue("answer", currentQuiz.answer);
-    }
-  }, [currentQuizIndex, quizs, form, remove, append]);
+  console.log(quizs);
 
   useEffect(() => {
-    const answerValue = form.getValues("answer");
-    if (answerValue >= fields.length && fields.length > 0) {
-      form.setValue("answer", fields.length - 1);
-    }
-  }, [fields.length, form]);
+    form.setValue("quest", quizs[currentQuizIndex].quest);
+    form.setValue("answer", quizs[currentQuizIndex].answer);
+    quizs[currentQuizIndex].variants.map((v, i) =>
+      update(i, { value: v.value }),
+    );
+  }, [form, quizs, currentQuizIndex, append, update]);
 
-  const handleSaveQuest = (data: FormSchema) => {
-    const copy = [...quizs];
+  const saveCurrentQuiz = () => {
+    const values = form.getValues();
 
-    if (!copy[currentQuizIndex]) {
-      copy.push({
-        quest: data.quest,
-        variants: data.variants,
-        answer: data.answer,
-      });
-    } else {
+    setQuizs((prev) => {
+      const copy = [...prev];
+
       copy[currentQuizIndex] = {
-        quest: data.quest,
-        variants: data.variants,
-        answer: data.answer,
+        ...copy[currentQuizIndex],
+        quest: values.quest,
+        answer: values.answer,
+        variants: values.variants,
       };
-    }
 
-    setQuizs(copy);
-
-    console.log("Saved quiz:", data);
-
-    form.reset({
-      quest: "",
-      variants: [{ value: "" }],
-      answer: 0,
+      return copy;
     });
   };
 
-  const lastVariantValue = form.watch(`variants.${fields.length - 1}.value`);
+  const addNewQuest = () => {
+    setQuizs((prev) => [
+      ...prev,
+      {
+        quest: "",
+        answer: 0,
+        variants: [{ value: "" }, { value: "" }, { value: "" }],
+      },
+    ]);
+  };
 
-  useEffect(() => {
-    if (lastVariantValue === undefined) return;
-
-    if (lastVariantValue.length > 0) {
-      (document.activeElement as HTMLElement | null)?.blur();
-      append({ value: "" }, { focusIndex: fields.length - 1 });
-    }
-  }, [lastVariantValue]);
+  <QuizTest quizs={quizs} setQuizs={setQuizs} />;
 
   return (
     <div>
@@ -118,7 +91,7 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
             <FieldLabel htmlFor="form-rhf-demo-quest">
               Question {currentQuizIndex + 1}
             </FieldLabel>
-            <Input type="text" placeholder="question..." {...field} />
+            <Textarea placeholder="question..." {...field} />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </Field>
         )}
@@ -142,19 +115,25 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
                     ></div>
                   )}
                 </div>
-                {/*<Button
-                  key={index}
-                  type="button"
-                  size="icon"
-                  variant={form.watch("answer") === index ? "default" : "ghost"}
-                  onClick={() => form.setValue("answer", index)}
-                >
-                  {String.fromCharCode(index + 65)}
-                </Button>*/}
                 <FieldLabel className="sr-only"></FieldLabel>
-                <Input
+                <Textarea
+                  autoFocus
                   {...field}
-                  placeholder={`Variant ${String.fromCharCode(index + 65)}`}
+                  onInput={() => {
+                    const isLast = index === fields.length - 1;
+                    const hasValue = field.value?.trim().length > 0;
+
+                    if (isLast && hasValue) {
+                      append(
+                        { value: "" },
+                        {
+                          focusIndex: index,
+                          focusName: `variants.${index}.value`,
+                        },
+                      );
+                    }
+                  }}
+                  placeholder={`Variant ${String.fromCharCode(65 + index)}`}
                 />
                 {fields.length - 1 !== index ? (
                   <Button
@@ -175,56 +154,33 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
         />
       ))}
 
-      {/*{fields.length < 4 && (
-        <Button
-          className="block my-5 mx-auto"
-          type="button"
-          onClick={() => append({ value: "" })}
-        >
-          Add variant
-        </Button>
-      )}*/}
-
-      {/*<div className="my-4">
-        <FieldLabel>To'g'ri javob</FieldLabel>
-        <div className="flex gap-2 mt-2">
-          {fields.map((_, index) => (
-            <Button
-              key={index}
-              type="button"
-              variant={form.watch("answer") === index ? "default" : "outline"}
-              onClick={() => form.setValue("answer", index)}
-            >
-              {String.fromCharCode(index + 65)}
-            </Button>
-          ))}
-        </div>
-      </div>*/}
-
-      {/*<div className="flex justify-center gap-3">
-        <Button
-          variant="outline"
-          type="button"
-          onClick={() => setCurrentQuizIndex((prev) => prev - 1)}
-          disabled={currentQuizIndex === 0}
-        >
-          Prev
-        </Button>
-        <Button onClick={form.handleSubmit(handleSaveQuest)}>Save</Button>
+      <div className="mt-4 flex justify-center gap-3">
         <Button
           variant="outline"
           type="button"
           onClick={() => {
-            form.handleSubmit(handleSaveQuest)();
-            if (currentQuizIndex < quizs.length - 1) {
-              setCurrentQuizIndex((prev) => prev + 1);
-            }
+            setCurrentQuizIndex((prev) => prev - 1);
+            saveCurrentQuiz();
           }}
-          disabled={currentQuizIndex === quizs.length - 1}
+          disabled={currentQuizIndex === 0}
+        >
+          Prev
+        </Button>
+        {/*<Button type="button" onClick={form.handleSubmit(saveCurrentQuiz)}>
+          Save
+        </Button>*/}
+        <Button
+          variant="outline"
+          type="button"
+          onClick={() => {
+            if (currentQuizIndex === quizs.length - 1) addNewQuest();
+            setCurrentQuizIndex((prev) => prev + 1);
+            saveCurrentQuiz();
+          }}
         >
           Next
         </Button>
-      </div>*/}
+      </div>
     </div>
   );
 };
