@@ -22,56 +22,43 @@ import { Controller, useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { z } from "zod";
-import Contents from "./contents";
-import { COURSE_CONTENT_TYPES, type IQuizTypes } from "@/types";
-import Previews from "./previews";
-import QuizTest from "@/components/blocks/course-contents/quiz-test";
+import { COURSE_CONTENT_TYPES, QuizSchema, type QuizType } from "@/types";
 import { cn } from "@/lib/utils";
+import Previews from "./preview";
+import Contents from "./contents";
 
-const formSchema = z.object({
-  name: z.string().min(3).max(50),
-  type: z.enum(COURSE_CONTENT_TYPES),
-  language: z.string().min(1, "Language required"),
-  description: z.string().min(1, "Description required"),
-});
+const formSchema = z.discriminatedUnion("type", [
+  z.object({
+    name: z.string().min(3).max(50),
+    type: z.literal("markdown"),
+    language: z.string().min(1),
+    content: z.string().min(1, "Content required").nullable(),
+  }),
+  z.object({
+    name: z.string().min(3).max(50),
+    type: z.literal("quiz-test"),
+    language: z.string().min(1),
+    content: z.array(QuizSchema).nullable(),
+  }),
+]);
 
 const CreateCourse = () => {
   const [isPending, setIsPending] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
-  const [quizs, setQuizs] = useState<IQuizTypes[]>([
-    {
-      quest: "Birinchi savol",
-      variants: [
-        { value: "A) Variant 1" },
-        { value: "B) Variant 2" },
-        { value: "C) Variant 3" },
-      ],
-      answer: 0,
-    },
-    {
-      quest: "Ikkinchi savol",
-      variants: [
-        { value: "A) Variant A" },
-        { value: "B) Variant B" },
-        { value: "C) Variant C" },
-      ],
-      answer: 1,
-    },
-  ]);
-
-  console.log(quizs);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      type: "quiz-test",
+      type: "markdown",
       language: "",
-      description:
-        '# Title\njavascript\n\n```js\nfunction hello(){\n     console.log("Hello");\n}\nhello();\n// Hello\n```\n> blockquote\n\n![The San Juan Mountains are beautiful](https://cdn.pixabay.com/photo/2023/12/16/19/33/christmas-8453173_1280.jpg "San Juan Mountains")',
+      content: null,
     },
   });
+
   const contentType = form.watch("type");
+
+  console.log(form.watch("type"));
 
   const onClosePreview = useCallback(() => {
     setIsPreview(false);
@@ -159,49 +146,48 @@ const CreateCourse = () => {
             )}
           />
 
-          {contentType === "markdown" && (
-            <>
-              <p className="text-xl text-center font-bold">Markdown</p>
-              <Controller
-                name="description"
-                control={form.control}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid} className="">
-                    <FieldLabel htmlFor="form-rhf-demo-description">
-                      Content
-                    </FieldLabel>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                    {/*---------------------------------- Contents --------------------------------------*/}
-                    <Contents field={field} type={contentType} />
-                  </Field>
+          <Controller
+            name="content"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel
+                  htmlFor="form-rhf-demo-description"
+                  className="font-bold text-2xl"
+                >
+                  Content
+                </FieldLabel>
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
                 )}
-              />
-            </>
-          )}
-
-          {contentType === "quiz-test" && (
-            <>
-              <p className="text-xl text-center font-bold">Quiz</p>
-              <QuizTest quizs={quizs} setQuizs={setQuizs} />
-            </>
-          )}
+                {/*---------------------------------- Contents --------------------------------------*/}
+                <Contents
+                  {...(contentType === "markdown"
+                    ? {
+                        field: {
+                          value: (field.value as string) ?? "",
+                          onChange: field.onChange,
+                        },
+                        type: "markdown" as const,
+                      }
+                    : {
+                        field: {
+                          value: (field.value as QuizType[]) ?? [],
+                          onChange: field.onChange,
+                        },
+                        type: "quiz-test" as const,
+                      })}
+                />
+              </Field>
+            )}
+          />
         </div>
 
-        <div
-          className={cn(
-            (contentType === "markdown" ? "grid-cols-2" : "") +
-              " grid xl:grid-cols-1 w-full gap-3",
-          )}
-        >
+        <div className={cn("grid-cols-2 grid xl:grid-cols-1 w-full gap-3")}>
           <Button
             variant={"outline"}
             type="button"
-            className={cn(
-              (contentType === "markdown" ? "max-xl:flex" : "") +
-                " w-full hidden",
-            )}
+            className={cn("max-xl:flex w-full hidden")}
             onClick={() => setIsPreview(true)}
           >
             {isPreview ? <Eye /> : <EyeOff />}
@@ -220,12 +206,21 @@ const CreateCourse = () => {
         </div>
       </form>
 
-      {/*  Preview   */}
+      {/* Preview */}
       <Previews
-        type={contentType}
-        isPreview={isPreview}
-        onClosePreview={onClosePreview}
-        value={form.watch("description")}
+        {...(contentType === "markdown"
+          ? {
+              isPreview,
+              onClosePreview,
+              type: "markdown" as const,
+              value: form.watch("content") as string,
+            }
+          : {
+              isPreview,
+              onClosePreview,
+              type: "quiz-test" as const,
+              value: form.watch("content") as QuizType[],
+            })}
       />
     </div>
   );

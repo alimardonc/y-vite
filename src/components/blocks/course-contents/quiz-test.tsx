@@ -1,15 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import type { IQuizTypes } from "@/types";
+import { cn } from "@/lib/utils";
+import type { QuizType } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Fragment, useEffect, useState } from "react";
+import { X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
 
 interface IProps {
-  quizs: IQuizTypes[];
-  setQuizs: React.Dispatch<React.SetStateAction<IQuizTypes[]>>;
+  quizs: QuizType[];
+  setQuizs: (quizs: QuizType[]) => void;
 }
 
 const formSchema = z.object({
@@ -34,7 +36,7 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       quest: "",
-      variants: [{ value: "" }, { value: "" }, { value: "" }],
+      variants: [{ value: "" }],
       answer: 0,
     },
   });
@@ -49,21 +51,17 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
     if (quizs.length > 0 && quizs[currentQuizIndex]) {
       const currentQuiz = quizs[currentQuizIndex];
 
-      // Avval variantlarni tozalash
       remove();
 
-      // Keyin yangi variantlarni qo'shish
       currentQuiz.variants.forEach((variant) => {
         append({ value: variant.value });
       });
 
-      // Quest va answer qiymatlarini o'rnatish
       form.setValue("quest", currentQuiz.quest);
       form.setValue("answer", currentQuiz.answer);
     }
   }, [currentQuizIndex, quizs, form, remove, append]);
 
-  // 2. Variantlar soni o'zgarganda answer tekshirish
   useEffect(() => {
     const answerValue = form.getValues("answer");
     if (answerValue >= fields.length && fields.length > 0) {
@@ -72,34 +70,43 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
   }, [fields.length, form]);
 
   const handleSaveQuest = (data: FormSchema) => {
-    setQuizs((prev) => {
-      const copy = [...prev];
+    const copy = [...quizs];
 
-      if (!copy[currentQuizIndex]) {
-        copy.push({
-          quest: data.quest,
-          variants: data.variants,
-          answer: data.answer,
-        });
-      } else {
-        copy[currentQuizIndex] = {
-          quest: data.quest,
-          variants: data.variants,
-          answer: data.answer,
-        };
-      }
+    if (!copy[currentQuizIndex]) {
+      copy.push({
+        quest: data.quest,
+        variants: data.variants,
+        answer: data.answer,
+      });
+    } else {
+      copy[currentQuizIndex] = {
+        quest: data.quest,
+        variants: data.variants,
+        answer: data.answer,
+      };
+    }
 
-      return copy;
-    });
+    setQuizs(copy);
 
     console.log("Saved quiz:", data);
 
     form.reset({
       quest: "",
-      variants: [{ value: "" }, { value: "" }, { value: "" }],
+      variants: [{ value: "" }],
       answer: 0,
     });
   };
+
+  const lastVariantValue = form.watch(`variants.${fields.length - 1}.value`);
+
+  useEffect(() => {
+    if (lastVariantValue === undefined) return;
+
+    if (lastVariantValue.length > 0) {
+      (document.activeElement as HTMLElement | null)?.blur();
+      append({ value: "" }, { focusIndex: fields.length - 1 });
+    }
+  }, [lastVariantValue]);
 
   return (
     <div>
@@ -108,45 +115,67 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
-            <FieldLabel htmlFor="form-rhf-demo-quest">Quest</FieldLabel>
-            <Input type="text" placeholder="quest..." {...field} />
+            <FieldLabel htmlFor="form-rhf-demo-quest">
+              Question {currentQuizIndex + 1}
+            </FieldLabel>
+            <Input type="text" placeholder="question..." {...field} />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </Field>
         )}
       />
 
       {fields.map((variant, index) => (
-        <Fragment key={variant.id}>
-          <Controller
-            name={`variants.${index}.value`}
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel>{String.fromCharCode(index + 65)}</FieldLabel>
+        <Controller
+          key={variant.id}
+          name={`variants.${index}.value`}
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <div className="flex gap-1 mt-2">
+                <div
+                  className="size-10! border rounded-full shrink-0 flex items-center justify-center"
+                  onClick={() => form.setValue("answer", index)}
+                >
+                  {form.watch("answer") === index && (
+                    <div
+                      className={cn("rounded-full size-3.5 bg-primary")}
+                    ></div>
+                  )}
+                </div>
+                {/*<Button
+                  key={index}
+                  type="button"
+                  size="icon"
+                  variant={form.watch("answer") === index ? "default" : "ghost"}
+                  onClick={() => form.setValue("answer", index)}
+                >
+                  {String.fromCharCode(index + 65)}
+                </Button>*/}
+                <FieldLabel className="sr-only"></FieldLabel>
                 <Input
                   {...field}
                   placeholder={`Variant ${String.fromCharCode(index + 65)}`}
                 />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
+                {fields.length - 1 !== index ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => remove(index)}
+                  >
+                    <X />
+                  </Button>
+                ) : (
+                  <div className="w-9 h-9 shrink-0"></div>
                 )}
-              </Field>
-            )}
-          />
-          {fields.length > 2 && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => remove(index)}
-            >
-              -
-            </Button>
+              </div>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
           )}
-        </Fragment>
+        />
       ))}
 
-      {fields.length < 4 && (
+      {/*{fields.length < 4 && (
         <Button
           className="block my-5 mx-auto"
           type="button"
@@ -154,9 +183,9 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
         >
           Add variant
         </Button>
-      )}
+      )}*/}
 
-      <div className="my-4">
+      {/*<div className="my-4">
         <FieldLabel>To'g'ri javob</FieldLabel>
         <div className="flex gap-2 mt-2">
           {fields.map((_, index) => (
@@ -170,11 +199,12 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
             </Button>
           ))}
         </div>
-      </div>
+      </div>*/}
 
-      <div className="flex flex-col justify-center gap-3 xl:flex-row">
+      {/*<div className="flex justify-center gap-3">
         <Button
-          variant={"outline"}
+          variant="outline"
+          type="button"
           onClick={() => setCurrentQuizIndex((prev) => prev - 1)}
           disabled={currentQuizIndex === 0}
         >
@@ -182,7 +212,8 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
         </Button>
         <Button onClick={form.handleSubmit(handleSaveQuest)}>Save</Button>
         <Button
-          variant={"outline"}
+          variant="outline"
+          type="button"
           onClick={() => {
             form.handleSubmit(handleSaveQuest)();
             if (currentQuizIndex < quizs.length - 1) {
@@ -193,7 +224,7 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
         >
           Next
         </Button>
-      </div>
+      </div>*/}
     </div>
   );
 };

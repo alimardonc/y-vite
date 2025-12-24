@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export interface ICourse {
   id: number;
   title: string;
@@ -7,13 +9,6 @@ export interface ICourse {
   description: string;
   tech: string;
 }
-// export interface FCourse {
-//   name: string;
-//   content: string;
-//   type: string; //(select)
-//   language: string;
-//   description: string;
-// }
 
 export interface IUser {
   id: number;
@@ -28,8 +23,14 @@ export const COURSE_CONTENT_TYPES = ["markdown", "quiz-test"] as const;
 
 export type ICourseContentTypes = (typeof COURSE_CONTENT_TYPES)[number];
 
-export interface IQuizTypes {
-  quest: string;
-  variants: { value: string }[];
-  answer: number;
-}
+export const QuizSchema = z.object({
+  quest: z.string(),
+  variants: z.array(
+    z.object({
+      value: z.string(),
+    }),
+  ),
+  answer: z.number().int().nonnegative(),
+});
+
+export type QuizType = z.infer<typeof QuizSchema>;

@@ -1,9 +1,10 @@
-import type { IQuizTypes } from "@/types";
+import type { QuizType } from "@/types";
 
 interface IProps {
-  value: IQuizTypes;
+  value: QuizType[];
 }
 const QuizPreview = ({ value }: IProps) => {
-  return <>{value}</>;
+  console.log(value);
+  return <>asdasd</>;
 };
 export default QuizPreview;

@@ -5,10 +5,9 @@ import { cn } from "@/lib/utils";
 interface IProps {
   content: string;
   className?: string;
-  closeBtn?: React.ReactNode;
 }
 
-const MarkdownView = ({ content, className, closeBtn }: IProps) => {
+const MarkdownView = ({ content, className }: IProps) => {
   const { theme } = useTheme();
   return (
     <div
@@ -17,7 +16,6 @@ const MarkdownView = ({ content, className, closeBtn }: IProps) => {
         className,
       )}
     >
-      {closeBtn && <div className="flex justify-end">{closeBtn}</div>}
       <MarkdownPreview
         source={content}
         style={{
