@@ -6,9 +6,9 @@ import Courses from "./pages/courses/courses";
 import Course from "./pages/course/course";
 import Lesson from "./pages/lesson/lesson";
 import Login from "./pages/login";
-import AuthLayout from "./components/providers/auth-layout";
+import AuthLayout from "./components/providers/auth";
 import Profile from "./pages/profile/profile";
-import LoginLayout from "./components/providers/login-layout";
+import LoginLayout from "./components/providers/login";
 import CreateCourse from "./pages/course/create-coure/create-course";
 
 export const router = createBrowserRouter([

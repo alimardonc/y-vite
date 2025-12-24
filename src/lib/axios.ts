@@ -1,5 +1,5 @@
 import axios from "axios";
-import { removeAuthTokens } from "./cookies";
+import { removeAuthTokens } from "./token";
 
 export const SERVER_URL = import.meta.env.VITE_PUBLIC_API_URL;
 
