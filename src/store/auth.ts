@@ -1,5 +1,5 @@
 import { profile } from "@/lib/auth";
-import { removeAuthTokens, setAuthTokens } from "@/lib/cookies";
+import { removeAuthTokens, setAuthTokens } from "@/lib/token";
 import type { IUser } from "@/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
