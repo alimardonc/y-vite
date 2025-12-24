@@ -14,7 +14,7 @@ type QuizProps = {
   type: "quiz-test";
   field: {
     value: QuizType[];
-    onChange: (value: QuizType[]) => void;
+    setQuizs: React.Dispatch<React.SetStateAction<QuizType[]>>;
   };
 };
 
@@ -25,7 +25,7 @@ const Contents = ({ field, type }: IProps) => {
     case "markdown":
       return <MDEditor field={field} />;
     case "quiz-test":
-      return <QuizTest quizs={field.value} setQuizs={field.onChange} />;
+      return <QuizTest quizs={field.value} setQuizs={field.setQuizs} />;
     default:
       return null;
   }

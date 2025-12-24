@@ -14,7 +14,7 @@ const CreateQuiz = () => {
   ]);
   return (
     <>
-      <Contents type="quiz-test" field={{ value: quizs, onChange: setQuizs }} />
+      <Contents type="quiz-test" field={{ value: quizs, setQuizs: setQuizs }} />
     </>
   );
 };

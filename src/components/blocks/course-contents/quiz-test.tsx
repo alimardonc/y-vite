@@ -5,13 +5,13 @@ import { cn } from "@/lib/utils";
 import type { QuizType } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type SetStateAction } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
 
 interface IProps {
   quizs: QuizType[];
-  setQuizs: React.Dispatch<React.SetStateAction<QuizType[]>>;
+  setQuizs: React.Dispatch<SetStateAction<QuizType[]>>;
 }
 
 const formSchema = z.object({
@@ -79,8 +79,6 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
     ]);
   };
 
-  <QuizTest quizs={quizs} setQuizs={setQuizs} />;
-
   return (
     <div>
       <Controller
@@ -117,7 +115,6 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
                 </div>
                 <FieldLabel className="sr-only"></FieldLabel>
                 <Textarea
-                  autoFocus
                   {...field}
                   onInput={() => {
                     const isLast = index === fields.length - 1;
