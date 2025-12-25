@@ -58,6 +58,7 @@ export default function MDEditor({ field }: IProps) {
       preview="edit"
       extraCommands={[codePreview, commands.fullscreen]}
       onChange={(val) => field.onChange(val + "")}
+      className="h-full! resize-none"
     />
   );
 }

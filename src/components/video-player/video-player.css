@@ -1,0 +1,33 @@
+media-controller {
+    --media-primary-color: var(--primary);
+    --media-secondary-color: hsl(var(--muted-foreground));
+    --media-control-background: transparent;
+    --media-control-hover-background: transparent;
+    --media-control-border-radius: 0.5rem;
+    --media-font-family: inherit;
+}
+
+media-play-button,
+media-seek-backward-button,
+media-seek-forward-button,
+media-mute-button,
+media-fullscreen-button,
+media-playback-rate-button {
+    border-radius: 0.5rem;
+    padding: 0.375rem;
+}
+
+media-play-button:hover,
+media-seek-backward-button:hover,
+media-seek-forward-button:hover,
+media-mute-button:hover,
+media-fullscreen-button:hover {
+    background: var(--primary-foreground);
+}
+
+media-time-range {
+    --media-range-track-height: 4px;
+    --media-range-thumb-width: 12px;
+    --media-range-thumb-height: 12px;
+    --media-range-thumb-border-radius: 9999px;
+}

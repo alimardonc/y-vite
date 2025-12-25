@@ -19,7 +19,7 @@ export interface IUser {
   avatar: string;
 }
 
-export const COURSE_CONTENT_TYPES = ["markdown", "quiz-test"] as const;
+export const COURSE_CONTENT_TYPES = ["markdown"] as const;
 
 export type ICourseContentTypes = (typeof COURSE_CONTENT_TYPES)[number];
 

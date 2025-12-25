@@ -41,7 +41,6 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
     control: form.control,
     name: "variants",
   });
-  console.log(quizs);
 
   useEffect(() => {
     form.setValue("quest", quizs[currentQuizIndex].quest);
