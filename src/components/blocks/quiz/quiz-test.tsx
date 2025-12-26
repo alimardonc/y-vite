@@ -2,53 +2,36 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import type { QuizType } from "@/types";
+import { QuizSchema, type QuizType } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";
+import { Check, CirclePlus, Trash2, X } from "lucide-react";
 import { useEffect, useState, type SetStateAction } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import z from "zod";
 
 interface IProps {
   quizs: QuizType[];
   setQuizs: React.Dispatch<SetStateAction<QuizType[]>>;
 }
 
-const formSchema = z.object({
-  quest: z.string().min(3).max(50),
-  variants: z
-    .array(
-      z.object({
-        value: z.string(),
-      }),
-    )
-    .min(2, "Kamida 2 variant")
-    .max(4, "Ko'pi bilan 4 variant"),
-  answer: z.number().min(0),
-});
-
-type FormSchema = z.infer<typeof formSchema>;
-
 const QuizTest = ({ quizs, setQuizs }: IProps) => {
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
 
-  const form = useForm<FormSchema>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<QuizType>({
+    resolver: zodResolver(QuizSchema),
     defaultValues: quizs[currentQuizIndex],
   });
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "variants",
   });
 
   useEffect(() => {
-    form.setValue("quest", quizs[currentQuizIndex].quest);
-    form.setValue("answer", quizs[currentQuizIndex].answer);
-    quizs[currentQuizIndex].variants.map((v, i) =>
-      update(i, { value: v.value }),
-    );
-  }, [form, quizs, currentQuizIndex, append, update]);
+    const quiz = quizs[currentQuizIndex];
+    if (!quiz) return;
+
+    form.reset(quiz);
+  }, [currentQuizIndex, quizs, form]);
 
   const saveCurrentQuiz = () => {
     const values = form.getValues();
@@ -76,23 +59,50 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
       ...prev,
       {
         quest: "",
-        answer: 0,
-        variants: [{ value: "" }, { value: "" }, { value: "" }],
+        answer: [0],
+        variants: [{ value: "" }],
       },
     ]);
+    setCurrentQuizIndex(quizs.length);
+  };
+
+  const removeQuest = () => {
+    const newIndex = Math.max(0, currentQuizIndex - 1);
+    setCurrentQuizIndex(newIndex);
+
+    const filteredQuest = quizs.filter((_, i) => i !== currentQuizIndex);
+    setQuizs(filteredQuest);
   };
 
   return (
     <div>
+      <div className="w-full flex justify-between mb-4 p-2">
+        <Button
+          onClick={form.handleSubmit(() => {
+            saveCurrentQuiz();
+            addNewQuest();
+          })}
+        >
+          New <CirclePlus />
+        </Button>
+        <Button
+          disabled={quizs.length <= 1}
+          onClick={removeQuest}
+          variant={"outline"}
+        >
+          Remove
+          <Trash2 />
+        </Button>
+      </div>
       <Controller
         name="quest"
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
             <FieldLabel htmlFor="form-rhf-demo-quest">
-              Question {currentQuizIndex + 1}
+              {currentQuizIndex + 1}-Question
             </FieldLabel>
-            <Textarea placeholder="question..." {...field} />
+            <Textarea className="h-9" placeholder="question..." {...field} />
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </Field>
         )}
@@ -105,17 +115,33 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <div className="flex gap-1 mt-2">
-                <div
-                  className="size-10! border rounded-full shrink-0 flex items-center justify-center"
-                  onClick={() => form.setValue("answer", index)}
+              <div className="w-full flex items-center gap-1 mt-2">
+                <Button
+                  variant={"ghost"}
+                  className="p-0"
+                  disabled={fields.length - 1 === index}
                 >
-                  {form.watch("answer") === index && (
-                    <div
-                      className={cn("rounded-full size-3.5 bg-primary")}
-                    ></div>
-                  )}
-                </div>
+                  <div
+                    className={cn(
+                      "w-9 h-9 border cursor-pointer rounded-sm shrink-0 flex items-center justify-center",
+                      form.watch("answer").includes(index)
+                        ? " border-2 bg-[#ffffff30]"
+                        : "",
+                    )}
+                    onClick={() =>
+                      !form.watch("answer").includes(index)
+                        ? form.setValue("answer", [
+                            ...form.watch("answer"),
+                            index,
+                          ])
+                        : form.setValue("answer", [
+                            ...form.watch("answer").filter((a) => a !== index),
+                          ])
+                    }
+                  >
+                    {form.watch("answer").includes(index) && <Check />}
+                  </div>
+                </Button>
                 <FieldLabel className="sr-only"></FieldLabel>
                 <Textarea
                   {...field}
@@ -135,10 +161,11 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
                       );
                     }
                   }}
-                  className="h-10"
+                  className="h-9"
                   placeholder={`Variant ${String.fromCharCode(65 + index)}`}
                 />
-                {fields.length - 1 !== index ? (
+                {fieldState.error && <FieldError errors={[fieldState.error]} />}
+                {fields.length - 1 !== index && (
                   <Button
                     type="button"
                     variant="ghost"
@@ -147,39 +174,44 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
                   >
                     <X />
                   </Button>
-                ) : (
-                  <div className="w-9 h-9 shrink-0"></div>
                 )}
               </div>
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
       ))}
 
+      {form.formState.errors.variants?.message && (
+        <p className="text-md text-red-600 text-center">
+          {form.formState.errors.variants.message}
+        </p>
+      )}
+      {form.formState.errors.answer?.message && (
+        <p className="text-md text-red-600 text-center">
+          {form.formState.errors.answer.message}
+        </p>
+      )}
+
       <div className="mt-4 flex justify-center gap-3">
         <Button
-          variant="outline"
           type="button"
-          onClick={() => {
-            setCurrentQuizIndex((prev) => prev - 1);
-            saveCurrentQuiz();
-          }}
+          variant="outline"
           disabled={currentQuizIndex === 0}
+          onClick={() => {
+            saveCurrentQuiz();
+            setCurrentQuizIndex((prev) => prev - 1);
+          }}
         >
           Prev
         </Button>
-        {/*<Button type="button" onClick={form.handleSubmit(saveCurrentQuiz)}>
-          Save
-        </Button>*/}
         <Button
           variant="outline"
           type="button"
-          onClick={() => {
-            if (currentQuizIndex === quizs.length - 1) addNewQuest();
-            setCurrentQuizIndex((prev) => prev + 1);
+          disabled={currentQuizIndex === quizs.length - 1}
+          onClick={form.handleSubmit(() => {
             saveCurrentQuiz();
-          }}
+            setCurrentQuizIndex((prev) => prev + 1);
+          })}
         >
           Next
         </Button>
