@@ -1,15 +1,14 @@
 import { useAuthStore } from "@/store/auth";
 import { Suspense, useEffect } from "react";
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet, useLocation } from "react-router";
 import { Spinner } from "../ui/spinner";
 import Centered from "../ui/centered";
 
 export default function AuthLayout() {
   const isAuth = useAuthStore((state) => state.isAuthenticated);
-  const user = useAuthStore((state) => state.user);
   const isLoading = useAuthStore((state) => state.isLoading);
-
-  useEffect(() => {}, [user]);
+  const user = useAuthStore((state) => state.user);
+  const location = useLocation();
 
   useEffect(() => {
     if (isAuth) {
@@ -17,13 +16,17 @@ export default function AuthLayout() {
     }
   }, [isAuth]);
 
-  if (isAuth) return <Navigate to="/login" />;
-  if (!isLoading)
+  if (!isAuth) return <Navigate to="/login" />;
+  if (isLoading)
     return (
       <Centered>
         <Spinner className="size-10" />
       </Centered>
     );
+
+  if (user?.first_name?.length === 0 && location.pathname !== "/initialize") {
+    return <Navigate to="/initialize" />;
+  }
 
   return (
     <Suspense

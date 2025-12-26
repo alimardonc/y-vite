@@ -8,18 +8,22 @@ import {
   Field,
   FieldError,
   FieldLabel,
-  FieldSeparator,
+  // FieldSeparator,
 } from "@/components/ui/field";
 import { axiosClient } from "@/lib/axios";
 import toast from "react-hot-toast";
 import { Spinner } from "@/components/ui/spinner";
 import { useNavigate } from "react-router";
 import { useAuthStore } from "@/store/auth";
-import { FaGithub, FaGoogle } from "react-icons/fa";
+import { AxiosError } from "axios";
+// import { FaGithub, FaGoogle } from "react-icons/fa";
 
 const formSchema = z.object({
   email: z.email({ message: "Invalid email address" }),
-  password: z.string().min(8).max(50),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters" })
+    .max(50, { message: "Password must be at most 50 characters" }),
 });
 
 const LoginClient = () => {
@@ -44,9 +48,14 @@ const LoginClient = () => {
       login(data);
       toast.success(exists ? "Login successful!" : "Registration successful!");
       navigate("/dashboard");
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong");
+    } catch (error: typeof AxiosError | unknown) {
+      if (error instanceof AxiosError) {
+        if (error?.status === 401) {
+          toast.error("Unauthorized");
+        }
+      } else {
+        console.error("Something went wrong");
+      }
     } finally {
       setIsPending(false);
     }
@@ -62,7 +71,7 @@ const LoginClient = () => {
         <h3 className="text-xl font-bold">
           {exists ? "Welcome back" : "Sign Up"}
         </h3>
-        <Field>
+        {/*<Field>
           <Button variant="outline">
             <FaGoogle />
             {exists ? "Login with Google" : "Sign up with Google"}
@@ -74,7 +83,7 @@ const LoginClient = () => {
           <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card my-1.5">
             Or continue with
           </FieldSeparator>
-        </Field>
+        </Field>*/}
         <Controller
           disabled={isPending}
           name="email"
@@ -122,7 +131,7 @@ const LoginClient = () => {
             className="underline cursor-pointer"
             onClick={() => setExists((prev) => !prev)}
           >
-            {exists ? "Login" : "Sign in"}
+            {exists ? "Sign up" : "Login"}
           </span>
         </div>
       </form>

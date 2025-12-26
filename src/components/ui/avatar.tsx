@@ -2,6 +2,8 @@ import * as React from "react";
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 
 import { cn } from "@/lib/utils";
+import type { IUser } from "@/types";
+import { cva, type VariantProps } from "class-variance-authority";
 
 function Avatar({
   className,
@@ -48,4 +50,40 @@ function AvatarFallback({
   );
 }
 
-export { Avatar, AvatarImage, AvatarFallback };
+const sizes = cva("", {
+  variants: {
+    size: {
+      sm: "size-8",
+      default: "size-10",
+      lg: "size-12",
+      extraLarge:
+        "size-30 [&_[data-slot='avatar-fallback']]:text-4xl [&_[data-slot='avatar-fallback']]:font-bold",
+    },
+  },
+  defaultVariants: {
+    size: "default",
+  },
+});
+
+const AvatarWrapper = ({
+  user,
+  className,
+  size,
+}: {
+  user: IUser | null;
+  className?: string;
+} & VariantProps<typeof sizes>) => {
+  return (
+    <Avatar className={cn(sizes({ size }), className)}>
+      <AvatarFallback>
+        {user?.first_name?.slice(0, 1) + "" + user?.last_name?.slice(0, 1)}
+      </AvatarFallback>
+      <AvatarImage
+        src={user?.avatar}
+        alt={user?.first_name + "profile picture"}
+      />
+    </Avatar>
+  );
+};
+
+export { Avatar, AvatarImage, AvatarFallback, AvatarWrapper };

@@ -17,19 +17,13 @@ interface AuthState {
   logout: () => void;
   init: () => Promise<void>;
   isLoading: boolean;
+  setUser: (user: IUser) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      user: {
-        id: 360,
-        email: "player360@gmail.com",
-        firstName: "Player",
-        lastName: "360",
-        username: "player360",
-        avatar: "test.png",
-      },
+      user: null,
       isLoading: true,
       isAuthenticated: false,
       login: ({ user, access, refresh }) => {
@@ -42,6 +36,9 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         set({ user: null, isAuthenticated: false, isLoading: false });
         removeAuthTokens();
+      },
+      setUser: (user) => {
+        set({ user });
       },
       init: async () => {
         set({ isLoading: true });

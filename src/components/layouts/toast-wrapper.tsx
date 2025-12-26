@@ -5,7 +5,7 @@ const ToastWrapper = () => {
     background: "var(--card)",
     color: "var(--card-foreground)",
   };
-  return <Toaster toastOptions={{ style, duration: 1000 }} />;
+  return <Toaster toastOptions={{ style, duration: 3000 }} />;
 };
 
 export default ToastWrapper;

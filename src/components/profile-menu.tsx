@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuthStore } from "@/store/auth";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { NavLink, useNavigate } from "react-router";
+import { AvatarWrapper } from "./ui/avatar";
 
 const ProfileMenu = () => {
   const navigate = useNavigate();
@@ -23,10 +23,7 @@ const ProfileMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="cursor-pointer">
-          <AvatarImage src={user?.avatar} alt="profile-picture" />
-          <AvatarFallback>OA</AvatarFallback>
-        </Avatar>
+        <AvatarWrapper user={user} className="cursor-pointer" />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuItem asChild>

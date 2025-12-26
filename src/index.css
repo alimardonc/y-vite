@@ -113,6 +113,10 @@
     --sidebar-ring: oklch(0.556 0 0);
 }
 
+body {
+    overflow-x: hidden;
+}
+
 * {
     user-select: none;
     outline: none;
