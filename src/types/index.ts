@@ -33,19 +33,27 @@ export const QuizSchema = z
           value: z.string().trim(),
         }),
       )
-      .transform((variants) => variants.filter((v) => v.value.length > 0))
       .refine(
-        (variants) => variants.length >= 2,
-        "Kamida 2 ta variant bo‘lishi kerak",
+        (variants) => {
+          // faqat bo‘sh bo‘lmagan variantlarni hisoblaymiz
+          const filledVariants = variants.filter((v) => v.value.length > 0);
+          return filledVariants.length >= 2;
+        },
+        {
+          message: "Kamida 2 ta variant bo‘lishi kerak",
+          path: [],
+        },
       ),
 
     answer: z
-      .array(z.number().int().nonnegative())
+      .array(z.number().int().min(0))
       .min(1, "Kamida 1 ta javob tanlanishi kerak"),
   })
   .superRefine((data, ctx) => {
+    const filledVariants = data.variants.filter((v) => v.value.length > 0);
+
     data.answer.forEach((index) => {
-      if (index >= data.variants.length) {
+      if (index >= filledVariants.length) {
         ctx.addIssue({
           path: ["answer"],
           message: "Answer mavjud variantga mos kelmaydi",
