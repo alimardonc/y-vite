@@ -2,6 +2,7 @@ import axios from "axios";
 import { removeAuthTokens } from "./token";
 
 export const SERVER_URL = import.meta.env.VITE_PUBLIC_API_URL;
+export const S3_URL = import.meta.env.VITE_PUBLIC_S3_URL;
 
 export const axiosClient = axios.create({
   baseURL: SERVER_URL,

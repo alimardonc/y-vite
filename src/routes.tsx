@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import Dashboard from "./pages/Dashboard";
 import AppLayout from "./App";
-import { Navigate } from "react-router";
 import Courses from "./pages/courses/courses";
 import Course from "./pages/course/course";
 import Lesson from "./pages/lesson/lesson";
@@ -11,6 +10,8 @@ import Profile from "./pages/profile/profile";
 import LoginLayout from "./components/providers/login";
 import CreateCourse from "./components/course-form/course-form";
 import MyCourses from "./pages/my-courses/courses";
+import EditCard from "./pages/profile/edit-card";
+import NotFound from "./pages/not-found";
 
 export const router = createBrowserRouter([
   {
@@ -27,7 +28,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "/initialize",
-        element: <Profile />,
+        element: <EditCard />,
       },
       {
         Component: AppLayout,
@@ -64,7 +65,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "*",
-        element: <Navigate to={"/dashboard"} />,
+        element: <NotFound />,
       },
     ],
   },

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LayoutDashboard, SquareTerminal, User } from "lucide-react";
+import { LayoutDashboard, Settings, SquareTerminal, User } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -34,16 +34,17 @@ const data = {
           title: "My Courses",
           url: "/my-courses",
         },
-        {
-          title: "Settings",
-          url: "/settings",
-        },
       ],
     },
     {
       title: "Profile",
       url: "/profile",
       icon: User,
+    },
+    {
+      title: "Settings",
+      url: "/settings",
+      icon: Settings,
     },
   ],
 };

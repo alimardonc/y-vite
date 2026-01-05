@@ -4,17 +4,12 @@ import { Input } from "@/components/ui/input";
 import { axiosClient } from "@/lib/axios";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth";
-import type { IUser } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import z from "zod";
-
-interface IProps {
-  user: IUser;
-}
 
 const formSchema = z.object({
   first_name: z
@@ -25,28 +20,60 @@ const formSchema = z.object({
     .string()
     .min(2, { error: "Last name must be at least 2 characters" })
     .max(100, { error: "Last name must be at most 100 characters" }),
-  profilePicture: z.file().or(z.string()).optional(),
+  avatar: z.union([z.instanceof(File), z.string()]).optional(),
 });
 
-const PersonalCard = ({ user }: IProps) => {
+const EditCard = () => {
+  const user = useAuthStore((state) => state.user);
   const [isPending, setIsPending] = useState(false);
   const setUser = useAuthStore((state) => state.setUser);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      first_name: user.first_name ? user.first_name : "",
-      last_name: user.last_name ? user.last_name : "",
+      first_name: user?.first_name ? user?.first_name : "",
+      last_name: user?.last_name ? user?.last_name : "",
+      avatar: user?.avatar ? user?.avatar : "",
     },
   });
   const navigate = useNavigate();
+  const avatar = form.watch("avatar");
+  const [preview, setPreview] = useState<string | null>(
+    typeof user?.avatar === "string" ? user?.avatar : null,
+  );
+
+  useEffect(() => {
+    if (avatar instanceof File) {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        setPreview(reader.result as string);
+      };
+
+      reader.readAsDataURL(avatar);
+      return;
+    }
+
+    if (typeof avatar === "string") {
+      setPreview(avatar);
+    }
+  }, [avatar]);
 
   async function onSubmit(formData: z.infer<typeof formSchema>) {
     setIsPending(true);
     try {
-      const { data } = await axiosClient.patch("/auth/me/", {
-        ...user,
-        ...formData,
+      const payload = new FormData();
+
+      payload.append("first_name", formData.first_name);
+      payload.append("last_name", formData.last_name);
+
+      if (formData.avatar instanceof File) {
+        payload.append("avatar", formData.avatar);
+      }
+
+      const { data } = await axiosClient.patch("/auth/me/", payload, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
+
       setUser(data);
       navigate("/dashboard");
     } catch (error) {
@@ -55,6 +82,8 @@ const PersonalCard = ({ user }: IProps) => {
       setIsPending(false);
     }
   }
+
+  const isDisabled = isPending || form.formState.isDirty;
 
   return (
     <div className="flex items-center justify-center w-full h-dvh px-2.5 py-2.5">
@@ -66,8 +95,8 @@ const PersonalCard = ({ user }: IProps) => {
           <div
             className={cn(
               "group",
-              "transition-opacity w-full absolute top-0 h-full group-hover:opacity-100 flex items-center justify-center",
-              user.avatar ? "bg-card/70 opacity-0" : "bg-card",
+              "transition-opacity w-full absolute cursor-pointer top-0 h-full group-hover:opacity-100 flex items-center justify-center",
+              user?.avatar || preview ? "bg-primary/10 opacity-0" : "bg-card",
             )}
           >
             <Camera
@@ -75,11 +104,30 @@ const PersonalCard = ({ user }: IProps) => {
               className="text-primary group-hover:scale-125 transition-all"
             />
           </div>
-          {user.avatar && <img src={user.avatar} />}
-          <input
-            type="file"
-            className="w-full h-full absolute opacity-0 cursor-pointer"
-            accept="image/*"
+
+          {preview && <img src={preview} />}
+
+          <Controller
+            disabled={isPending}
+            name="avatar"
+            control={form.control}
+            render={({ field: { onChange, ref }, fieldState }) => (
+              <>
+                <input
+                  type="file"
+                  className="w-full h-full absolute top-0 left-0 z-100 cursor-pointer opacity-0"
+                  accept="image/*"
+                  ref={ref}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] ?? null;
+                    onChange(file);
+                  }}
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </>
+            )}
           />
         </div>
 
@@ -119,7 +167,7 @@ const PersonalCard = ({ user }: IProps) => {
           )}
         />
 
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={!isDisabled}>
           {isPending ? "Saving..." : "Save"}
         </Button>
       </form>
@@ -127,4 +175,4 @@ const PersonalCard = ({ user }: IProps) => {
   );
 };
 
-export default PersonalCard;
+export default EditCard;

@@ -4,6 +4,7 @@ import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import { cn } from "@/lib/utils";
 import type { IUser } from "@/types";
 import { cva, type VariantProps } from "class-variance-authority";
+import { S3_URL } from "@/lib/axios";
 
 function Avatar({
   className,
@@ -79,7 +80,7 @@ const AvatarWrapper = ({
         {user?.first_name?.slice(0, 1) + "" + user?.last_name?.slice(0, 1)}
       </AvatarFallback>
       <AvatarImage
-        src={user?.avatar}
+        src={S3_URL + user?.avatar}
         alt={user?.first_name + "profile picture"}
       />
     </Avatar>

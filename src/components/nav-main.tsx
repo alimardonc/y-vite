@@ -77,7 +77,7 @@ export function NavMain({
             <SidebarMenuItem key={item.title}>
               <NavLink to={item.url} onClick={handleClose}>
                 <SidebarMenuButton
-                  tooltip={"Home page"}
+                  tooltip={item.title}
                   className="cursor-pointer!"
                 >
                   {item.icon && <item.icon />}

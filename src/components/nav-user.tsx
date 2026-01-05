@@ -4,7 +4,6 @@ import {
   ChevronsUpDown,
   CreditCard,
   LogOut,
-  Sparkles,
 } from "lucide-react";
 
 import {
@@ -26,6 +25,7 @@ import { useAuthStore } from "@/store/auth";
 import { Suspense } from "react";
 import { Spinner } from "./ui/spinner";
 import { AvatarWrapper } from "./ui/avatar";
+import { NavLink } from "react-router";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -77,24 +77,15 @@ export function NavUser() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <Sparkles />
-                  Upgrade to Pro
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <BadgeCheck />
-                  Account
-                </DropdownMenuItem>
+                <NavLink to="/profile">
+                  <DropdownMenuItem>
+                    <BadgeCheck />
+                    Account
+                  </DropdownMenuItem>
+                </NavLink>
                 <DropdownMenuItem>
                   <CreditCard />
                   Billing
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Bell />
-                  Notifications
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
