@@ -56,7 +56,7 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: "/courses/:id",
+        path: "/course/:id",
         Component: Course,
       },
       {

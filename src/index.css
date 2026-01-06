@@ -113,6 +113,11 @@
     --sidebar-ring: oklch(0.556 0 0);
 }
 
+.w-md-editor-toolbar,
+.w-md-editor-content {
+    background-color: var(--card) !important;
+}
+
 body {
     overflow-x: hidden;
 }
