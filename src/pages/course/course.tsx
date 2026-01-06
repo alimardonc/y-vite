@@ -25,8 +25,6 @@ const Course = () => {
       </Centered>
     );
 
-  console.log(data.owner);
-
   return (
     <div className="flex flex-col items-center justify-center px-2">
       <div className="mt-20 max-w-md text-center">
@@ -35,8 +33,8 @@ const Course = () => {
           {data?.desc}
         </p>
       </div>
-      <div className="flex justify-around w-full mt-5">
-        <div className="bg-card flex justify-center gap-2 p-2 border rounded-md">
+      <div className="flex max-xl:flex-col max-xl:gap-10 justify-around items-center w-full mt-5">
+        <div className="bg-card flex justify-center gap-2 p-3 border rounded-md">
           <AvatarWrapper user={data.owner} className="size-20" />
           <div className="flex flex-col">
             <span>Author</span>
@@ -48,9 +46,7 @@ const Course = () => {
             </p>
           </div>
         </div>
-        <NavLink to={"/lesson/" + data?.id} className="mt-5">
-          <Button size="lg">Start the course</Button>
-        </NavLink>
+        <Button size="lg">Start the course</Button>
         <div className="bg-card grid grid-cols-2 p-4 gap-4 rounded-md border">
           <div className="[&>p]:text-xl [&>span]:text-muted-foreground flex flex-col gap-1">
             <Timer size={35} className="text-yellow-400" />
