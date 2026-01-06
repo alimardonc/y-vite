@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/auth";
 import type { ICourse } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, Plus } from "lucide-react";
-import { NavLink } from "react-router";
+import { Link } from "react-router";
 
 const MyCourses = () => {
   const user = useAuthStore((state) => state.user);
@@ -32,16 +32,16 @@ const MyCourses = () => {
         <h1 className="text-3xl font-bold">
           {user?.first_name + " " + user?.last_name} courses
         </h1>
-        <NavLink to="/course/create">
+        <Link to="/course/create">
           <Button>
             <Plus />
             Create
           </Button>
-        </NavLink>
+        </Link>
       </div>
       <div className="grid grid-cols-3 gap-4 mt-5">
         {data?.map((course) => (
-          <NavLink
+          <Link
             to={`/course/${course?.id}`}
             key={course?.id}
             className="flex flex-col gap-2 justify-between bg-card w-full h-45 p-4 rounded-md border cursor-pointer hover:bg-card-foreground/10"
@@ -60,7 +60,7 @@ const MyCourses = () => {
                 })}
               </p>
             </div>
-          </NavLink>
+          </Link>
         ))}
       </div>
     </div>

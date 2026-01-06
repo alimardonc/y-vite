@@ -1,5 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { QuizSchema, type QuizType } from "@/types";
@@ -19,6 +27,7 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
   const form = useForm<QuizType>({
     resolver: zodResolver(QuizSchema),
     defaultValues: quizs[currentQuizIndex],
+    mode: "onChange",
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -36,9 +45,9 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
   const saveCurrentQuiz = () => {
     const values = form.getValues();
 
-    const filteredVariants = values.variants.filter(
-      (v) => v.value.trim().length > 0,
-    );
+    // const filteredVariants = values.variants.filter(
+    //   (v) => v.value.trim().length > 0,
+    // );
 
     setQuizs((prev) => {
       const copy = [...prev];
@@ -47,7 +56,7 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
         ...copy[currentQuizIndex],
         quest: values.quest,
         answer: values.answer,
-        variants: filteredVariants,
+        variants: values.variants,
       };
 
       return copy;
@@ -55,6 +64,7 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
   };
 
   const addNewQuest = () => {
+    saveCurrentQuiz();
     setQuizs((prev) => [
       ...prev,
       {
@@ -74,12 +84,18 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
     setQuizs(filteredQuest);
   };
 
+  console.log(quizs[currentQuizIndex]);
+
+  const handleCreateQuiz = (quizs: QuizType) => {
+    saveCurrentQuiz();
+    console.log(quizs);
+  };
+
   return (
     <div>
       <div className="w-full flex justify-between mb-4 p-2">
         <Button
           onClick={form.handleSubmit(() => {
-            saveCurrentQuiz();
             addNewQuest();
           })}
         >
@@ -128,16 +144,16 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
                         ? " border-2 bg-[#ffffff30]"
                         : "",
                     )}
-                    onClick={() =>
-                      !form.watch("answer").includes(index)
+                    onClick={() => {
+                      return !form.watch("answer").includes(index)
                         ? form.setValue("answer", [
                             ...form.watch("answer"),
                             index,
                           ])
                         : form.setValue("answer", [
                             ...form.watch("answer").filter((a) => a !== index),
-                          ])
-                    }
+                          ]);
+                    }}
                   >
                     {form.watch("answer").includes(index) && <Check />}
                   </div>
@@ -192,29 +208,36 @@ const QuizTest = ({ quizs, setQuizs }: IProps) => {
         </p>
       )}
 
-      <div className="mt-4 flex justify-center gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          disabled={currentQuizIndex === 0}
-          onClick={() => {
-            saveCurrentQuiz();
-            setCurrentQuizIndex((prev) => prev - 1);
-          }}
-        >
-          Prev
-        </Button>
-        <Button
-          variant="outline"
-          type="button"
-          disabled={currentQuizIndex === quizs.length - 1}
-          onClick={form.handleSubmit(() => {
-            saveCurrentQuiz();
-            setCurrentQuizIndex((prev) => prev + 1);
-          })}
-        >
-          Next
-        </Button>
+      <div className="mt-4 flex flex-col justify-center gap-3">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                disabled={currentQuizIndex === 0}
+                onClick={() => setCurrentQuizIndex((prev) => prev - 1)}
+              />
+            </PaginationItem>
+
+            {quizs.map((_, i) => (
+              <PaginationItem key={i}>
+                <PaginationLink
+                  isActive={currentQuizIndex === i}
+                  onClick={() => setCurrentQuizIndex(i)}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            <PaginationItem>
+              <PaginationNext
+                disabled={currentQuizIndex === quizs.length - 1}
+                onClick={() => setCurrentQuizIndex((prev) => prev + 1)}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+        <Button onClick={form.handleSubmit(handleCreateQuiz)}>Create</Button>
       </div>
     </div>
   );
