@@ -1,16 +1,16 @@
+import { COURSE_CONTENT_TYPES } from "@/types";
 import { z } from "zod";
-import { CONTENT_TYPES } from "./constants";
 
-const BaseSchema = z.object({
-  name: z.string().min(3).max(50),
-  language: z.string().min(1),
+export const courseFormSchema = z.object({
+  name: z
+    .string()
+    .min(3, { error: "Name must be at least 3 characters" })
+    .max(50, { error: "Name must be at most 50 characters" }),
+  language: z
+    .string()
+    .min(1, { error: "Language must be at least 1 character" }),
+  type: z.literal(COURSE_CONTENT_TYPES),
+  desc: z.string().min(1, "Markdown is required"),
 });
-
-export const courseFormSchema = z.discriminatedUnion("type", [
-  BaseSchema.extend({
-    type: z.literal(CONTENT_TYPES.MARKDOWN),
-    content: z.string().min(1, "Markdown is required"),
-  }),
-]);
 
 export type CourseFormValues = z.infer<typeof courseFormSchema>;

@@ -2,12 +2,11 @@ import { z } from "zod";
 
 export interface ICourse {
   id: number;
-  title: string;
-  lessonCount: number;
-  timeToFinish: number;
-  image: string;
-  description: string;
-  tech: string;
+  name: string;
+  language: string;
+  type: ICourseContentTypes;
+  desc: string;
+  owner: IUser;
 }
 
 export interface IUser {
@@ -19,7 +18,12 @@ export interface IUser {
   avatar: string;
 }
 
-export const COURSE_CONTENT_TYPES = ["markdown"] as const;
+export const COURSE_CONTENT_TYPES = [
+  "public",
+  "private",
+  "draft",
+  "archived",
+] as const;
 
 export type ICourseContentTypes = (typeof COURSE_CONTENT_TYPES)[number];
 
