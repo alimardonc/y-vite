@@ -7,9 +7,6 @@ export const S3_URL = import.meta.env.VITE_PUBLIC_S3_URL;
 export const axiosClient = axios.create({
   baseURL: SERVER_URL,
   withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 let isRefreshing = false;
