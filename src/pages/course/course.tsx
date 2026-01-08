@@ -1,4 +1,4 @@
-import { NavLink, useParams } from "react-router";
+import { useParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { axiosClient } from "@/lib/axios";

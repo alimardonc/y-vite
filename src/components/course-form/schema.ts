@@ -11,6 +11,8 @@ export const courseFormSchema = z.object({
     .min(1, { error: "Language must be at least 1 character" }),
   type: z.literal(COURSE_CONTENT_TYPES),
   desc: z.string().min(1, "Markdown is required"),
+  cover_image: z.file({ error: "Cover image is required" }),
+  intro_video: z.file().optional(),
 });
 
 export type CourseFormValues = z.infer<typeof courseFormSchema>;

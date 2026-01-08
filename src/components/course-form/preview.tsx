@@ -1,10 +1,7 @@
-import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import { AvatarWrapper } from "../ui/avatar";
 import { useAuthStore } from "@/store/auth";
 
 interface PreviewProps {
-  isPreview: boolean;
   onClosePreview: () => void;
   course: {
     name: string;
@@ -13,16 +10,11 @@ interface PreviewProps {
   };
 }
 
-const Preview = ({ isPreview, onClosePreview, course }: PreviewProps) => {
+const Preview = ({ onClosePreview, course }: PreviewProps) => {
   const user = useAuthStore((state) => state.user);
 
   return (
-    <div
-      className={cn(
-        "h-dvh overflow-hidden px-2 pt-2",
-        isPreview && "max-xl:fixed w-full top-0 left-0 bg-background z-100",
-      )}
-    >
+    <>
       <div className="flex justify-end items-center pr-2 py-4 xl:hidden">
         <Button onClick={onClosePreview} variant="outline">
           Close
@@ -45,7 +37,7 @@ const Preview = ({ isPreview, onClosePreview, course }: PreviewProps) => {
           </div>
         </div>*/}
       </div>
-    </div>
+    </>
   );
 };
 

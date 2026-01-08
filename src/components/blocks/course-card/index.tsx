@@ -10,7 +10,6 @@ const CourseCard = ({
   isOwnCourse?: boolean;
 }) => {
   return (
-    // w-[360px] h-auto
     <div className="flex flex-col gap-2 justify-between bg-card rounded-md border cursor-pointer hover:bg-card-foreground/10 duration-200 hover:ring-1 hover:ring-primary">
       <div className="w-full h-60 relative">
         <img
@@ -53,7 +52,7 @@ const CourseCard = ({
             </p>
           </div>
         </div>
-        <h3 className="text-2xl font-bold">{course?.name}</h3>
+        <h3 className="text-2xl font-bold truncate">{course?.name}</h3>
         <p className="text-muted-foreground text-sm line-clamp-3">
           {course?.desc}
         </p>

@@ -8,7 +8,6 @@ import Login from "./pages/login";
 import AuthLayout from "./components/providers/auth";
 import Profile from "./pages/profile/profile";
 import LoginLayout from "./components/providers/login";
-import CreateCourse from "./components/course-form/course-form";
 import MyCourses from "./pages/my-courses/courses";
 import EditCard from "./pages/profile/edit-card";
 import NotFound from "./pages/not-found";
@@ -58,10 +57,6 @@ export const router = createBrowserRouter([
       {
         path: "/course/:id",
         Component: Course,
-      },
-      {
-        path: "/course/create",
-        Component: CreateCourse,
       },
       {
         path: "*",
