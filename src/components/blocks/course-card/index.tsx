@@ -10,8 +10,8 @@ const CourseCard = ({
   onEdit,
 }: {
   course: ICourse;
-  onDelete: (id: number) => void;
-  onEdit: (id: number) => void;
+  onDelete: (course: ICourse) => void;
+  onEdit: (course: ICourse) => void;
   isOwner: boolean;
 }) => {
   return (
@@ -19,14 +19,14 @@ const CourseCard = ({
       <div className="w-full h-60 relative">
         <div className="z-20 flex flex-row p-1 rounded-md gap-2 delay-100 transition-all hover:bg-[#fff2] absolute top-1 right-1">
           <LucideTrash
-            onClick={() => onDelete(course.id)}
+            onClick={() => onDelete(course)}
             size={"20px"}
-            color="red"
+            className="text-red-500 hover:text-red-600"
           />
           <LucidePencil
-            onClick={() => onEdit(course.id)}
+            onClick={() => onEdit(course)}
             size={"20px"}
-            color="blue"
+            className="text-blue-500 hover:text-blue-600"
           />
         </div>
         <Link to={`/course/${course?.id}`}>

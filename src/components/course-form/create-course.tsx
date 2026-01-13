@@ -17,7 +17,6 @@ import {
 import { Button } from "../ui/button";
 import { COURSE_CONTENT_TYPES, type ICourseContentTypes } from "@/types";
 import { Field, FieldError, FieldLabel } from "../ui/field";
-import { useNavigate } from "react-router";
 import { Spinner } from "../ui/spinner";
 import { Textarea } from "../ui/textarea";
 import { ImageIcon, VideoIcon, X } from "lucide-react";
@@ -94,7 +93,6 @@ const CreateCourse = () => {
   const {
     formState: { errors },
   } = methods;
-  const navigate = useNavigate();
 
   const handleFileSelect = (
     files: FileList | null,
@@ -169,7 +167,6 @@ const CreateCourse = () => {
       const { data: course } = await createCourse(formData);
       console.log(course);
       toast.success("Created!");
-      navigate(`/course/${course.id}`);
     } catch (error) {
       console.error(error);
       toast.error("Error");

@@ -25,7 +25,7 @@ const Navigation = ({ show, setShow, type }: IProps) => {
               <SelectValue placeholder="Chapter" />
             </SelectTrigger>
             <SelectContent>
-              {Array.from({ length: 5 }).map((e, idx) => (
+              {Array.from({ length: 5 }).map((_, idx) => (
                 <SelectItem key={idx} value={idx + ""}>
                   Chapter {idx + 1}
                 </SelectItem>
@@ -37,7 +37,7 @@ const Navigation = ({ show, setShow, type }: IProps) => {
               <SelectValue placeholder="Lesson 1" />
             </SelectTrigger>
             <SelectContent>
-              {Array.from({ length: 5 }).map((e, idx) => (
+              {Array.from({ length: 5 }).map((_, idx) => (
                 <SelectItem key={idx} value={idx + ""}>
                   Lesson {idx + 1}
                 </SelectItem>
