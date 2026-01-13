@@ -58,7 +58,7 @@ const sizes = cva("", {
       default: "size-10",
       lg: "size-12",
       extraLarge:
-        "size-30 [&_[data-slot='avatar-fallback']]:text-4xl [&_[data-slot='avatar-fallback']]:font-bold",
+        "size-30  **:data-[data-slot='avatar-fallback']:text-4xl **:data-[slot='avatar-fallback']:font-bold",
     },
   },
   defaultVariants: {

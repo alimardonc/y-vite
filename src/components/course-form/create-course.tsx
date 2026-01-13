@@ -21,6 +21,8 @@ import { useNavigate } from "react-router";
 import { Spinner } from "../ui/spinner";
 import { Textarea } from "../ui/textarea";
 import { ImageIcon, VideoIcon, X } from "lucide-react";
+import { useAuthStore } from "@/store/auth";
+import { usePostHook } from "@/hooks/usePostQuery";
 
 interface IFiles {
   image: File | null;
@@ -72,6 +74,13 @@ const CreateCourse = () => {
   });
   const [isPreview, setIsPreview] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const user = useAuthStore((state) => state.user);
+
+  const { mutateAsync: createCourse } = usePostHook({
+    mutationKey: ["USER_COURSES", user?.email],
+    mutationFn: async (data: FormData) =>
+      await axiosClient.post("/courses/", data),
+  });
   const methods = useForm<CourseFormValues>({
     resolver: zodResolver(courseFormSchema),
     defaultValues: {
@@ -157,7 +166,8 @@ const CreateCourse = () => {
       for (const [key, value] of formData.entries()) {
         console.log(key, value);
       }
-      const { data: course } = await axiosClient.post("/courses/", formData);
+      const { data: course } = await createCourse(formData);
+      console.log(course);
       toast.success("Created!");
       navigate(`/course/${course.id}`);
     } catch (error) {

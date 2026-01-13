@@ -3,10 +3,12 @@ import { z } from "zod";
 export interface ICourse {
   id: number;
   name: string;
-  language: string;
-  type: ICourseContentTypes;
   desc: string;
-  owner: IUser;
+  type: ICourseContentTypes;
+  language: string;
+  cover_image?: string | null;
+  intro_video?: string | null;
+  my_roles?: string[];
 }
 
 export interface IUser {

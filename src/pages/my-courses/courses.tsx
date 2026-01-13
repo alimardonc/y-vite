@@ -15,13 +15,17 @@ import { useAuthStore } from "@/store/auth";
 import type { ICourse } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import { Link } from "react-router";
+import { useState } from "react";
 
 const MyCourses = () => {
   const user = useAuthStore((state) => state.user);
 
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [editId, setEditId] = useState<number | null>(null);
+
+  console.log(user);
   const { data, isLoading } = useQuery<ICourse[]>({
-    queryKey: ["user-course", user?.id],
+    queryKey: ["USER_COURSES", user?.email],
     queryFn: async () => {
       const res = await axiosClient.get("/courses/my/");
       return res.data;
@@ -56,12 +60,20 @@ const MyCourses = () => {
         </Dialog>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
-        {data?.map((course) => (
-          <Link to={`/course/${course?.id}`} key={course?.id}>
-            <CourseCard course={course} isOwnCourse={true} />
-          </Link>
-        ))}
+        {data.length > 0 ? (
+          data.map((course: ICourse) => (
+            <CourseCard
+              course={course}
+              key={course.id}
+              onDelete={setDeleteId}
+              onEdit={setEditId}
+            />
+          ))
+        ) : (
+          <>You haven't any course</>
+        )}
       </div>
+      <Dialog open={deleteId !== null}>delete </Dialog>
     </div>
   );
 };
