@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { S3_URL } from "@/lib/axios";
 import type { ICourse } from "@/types";
 import { Calendar } from "lucide-react";
 
@@ -9,12 +10,13 @@ const CourseCard = ({
   course: ICourse;
   isOwnCourse?: boolean;
 }) => {
+  console.log(course);
   return (
     <div className="flex flex-col gap-2 justify-between bg-card rounded-md border cursor-pointer hover:bg-card-foreground/10 duration-200 hover:ring-1 hover:ring-primary">
       <div className="w-full h-60 relative">
         <img
-          src={course?.img ?? "/logo.svg"}
-          className="w-full h-full object-cover aspect-square border-b"
+          src={S3_URL + course.cover_image}
+          className="w-full h-full object-cover aspect-square"
         />
         {!isOwnCourse && (
           <img

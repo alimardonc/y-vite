@@ -7,6 +7,8 @@ export interface ICourse {
   type: ICourseContentTypes;
   desc: string;
   owner: IUser;
+  cover_image: string;
+  intro_video?: string;
 }
 
 export interface IUser {
