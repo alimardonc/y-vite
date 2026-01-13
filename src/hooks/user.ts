@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export default function useUser() {
   return useQuery({
-    queryKey: ["user"],
+    queryKey: ["USER"],
     queryFn: async () => {
       const { data } = await axiosClient.get("/auth/me/");
       return data;

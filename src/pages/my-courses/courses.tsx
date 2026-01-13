@@ -1,7 +1,6 @@
 import CourseCard from "@/components/blocks/course-card";
 import CreateCourse from "@/components/course-form/create-course";
 import { Button } from "@/components/ui/button";
-import Centered from "@/components/ui/centered";
 import {
   Dialog,
   DialogContent,
@@ -9,31 +8,30 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Spinner } from "@/components/ui/spinner";
+import Loading from "@/components/ui/loading";
 import { axiosClient } from "@/lib/axios";
 import { useAuthStore } from "@/store/auth";
 import type { ICourse } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import { Link } from "react-router";
+import { useState } from "react";
 
 const MyCourses = () => {
   const user = useAuthStore((state) => state.user);
 
-  const { data, isLoading } = useQuery<ICourse[]>({
-    queryKey: ["user-course", user?.id],
+  const [editId, setEditId] = useState<number | null>(null);
+
+  const { data, isFetching } = useQuery<ICourse[]>({
+    queryKey: ["USER_COURSES", user?.email],
     queryFn: async () => {
       const res = await axiosClient.get("/courses/my/");
       return res.data;
     },
   });
 
-  if (isLoading || !data)
-    return (
-      <Centered>
-        <Spinner />
-      </Centered>
-    );
+  const onDelete = (courseId: number) => {};
+
+  if (isFetching) return <Loading />;
 
   return (
     <div className="p-5">
@@ -55,13 +53,23 @@ const MyCourses = () => {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
-        {data?.map((course) => (
-          <Link to={`/course/${course?.id}`} key={course?.id}>
-            <CourseCard course={course} isOwnCourse={true} />
-          </Link>
-        ))}
-      </div>
+      {data ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
+          {data.map((course) => (
+            <CourseCard
+              course={course}
+              key={course.id}
+              onDelete={onDelete}
+              onEdit={setEditId}
+              isOwner={course?.my_roles[0] === "owner"}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="w-full h-[60dvh] flex items-center justify-center">
+          You haven't any course
+        </div>
+      )}
     </div>
   );
 };

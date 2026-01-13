@@ -1,8 +1,8 @@
-import { profile } from "@/lib/auth";
 import { removeAuthTokens, setAuthTokens } from "@/lib/token";
 import type { IUser } from "@/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { fetchProfile } from "@/lib/profile";
 
 interface ILoginState {
   access: string;
@@ -43,7 +43,7 @@ export const useAuthStore = create<AuthState>()(
       init: async () => {
         set({ isLoading: true });
         try {
-          const r = await profile();
+          const r = await fetchProfile();
           set({
             user: { ...r },
             isAuthenticated: true,

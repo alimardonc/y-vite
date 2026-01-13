@@ -5,6 +5,7 @@ import { axiosClient } from "@/lib/axios";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Camera } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -24,6 +25,15 @@ const formSchema = z.object({
 });
 
 const EditCard = () => {
+  const { data: editedCard, mutateAsync: handleEditCard } = useMutation({
+    mutationKey: ["USER"],
+    mutationFn: async (payload: FormData) => {
+      const { data } = await axiosClient.patch("/auth/me/", payload, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return data;
+    },
+  });
   const user = useAuthStore((state) => state.user);
   const [isPending, setIsPending] = useState(false);
   const setUser = useAuthStore((state) => state.setUser);
@@ -70,11 +80,9 @@ const EditCard = () => {
         payload.append("avatar", formData.avatar);
       }
 
-      const { data } = await axiosClient.patch("/auth/me/", payload, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await handleEditCard(payload);
 
-      setUser(data);
+      setUser(editedCard);
       navigate("/dashboard");
     } catch (error) {
       console.error(error);

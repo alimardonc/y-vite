@@ -1,8 +1,7 @@
 import { useAuthStore } from "@/store/auth";
 import { Suspense, useEffect } from "react";
 import { Navigate, Outlet, useLocation } from "react-router";
-import { Spinner } from "../ui/spinner";
-import Centered from "../ui/centered";
+import Loading from "../ui/loading";
 
 export default function AuthLayout() {
   const isAuth = useAuthStore((state) => state.isAuthenticated);
@@ -17,25 +16,14 @@ export default function AuthLayout() {
   }, [isAuth]);
 
   if (!isAuth) return <Navigate to="/login" />;
-  if (isLoading)
-    return (
-      <Centered>
-        <Spinner className="size-10" />
-      </Centered>
-    );
+  if (isLoading) return <Loading />;
 
   if (user?.first_name?.length === 0 && location.pathname !== "/initialize") {
     return <Navigate to="/initialize" />;
   }
 
   return (
-    <Suspense
-      fallback={
-        <Centered>
-          <Spinner />
-        </Centered>
-      }
-    >
+    <Suspense fallback={<Loading />}>
       <Outlet />
     </Suspense>
   );
