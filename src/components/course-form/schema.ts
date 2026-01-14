@@ -1,7 +1,7 @@
 import { COURSE_CONTENT_TYPES } from "@/types";
 import { z } from "zod";
 
-export const courseFormSchema = z.object({
+export const createCourseSchema = z.object({
   name: z
     .string()
     .min(3, { error: "Name must be at least 3 characters" })
@@ -15,4 +15,14 @@ export const courseFormSchema = z.object({
   intro_video: z.file().optional(),
 });
 
-export type CourseFormValues = z.infer<typeof courseFormSchema>;
+export const editCourseSchema = z.object({
+  name: z.string().min(3).max(50),
+  language: z.string().min(1),
+  type: z.enum(COURSE_CONTENT_TYPES),
+  desc: z.string().min(1),
+  cover_image: z.instanceof(File).optional(),
+  intro_video: z.instanceof(File).optional(),
+});
+
+export type CreateCourseValues = z.infer<typeof createCourseSchema>;
+export type EditCourseValues = z.infer<typeof editCourseSchema>;

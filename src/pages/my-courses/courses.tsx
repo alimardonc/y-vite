@@ -1,5 +1,6 @@
 import CourseCard from "@/components/blocks/course-card";
-import CreateCourse from "@/components/course-form/create-course";
+import CreateCourse from "@/components/course-form/course-form";
+// import EditCourse from "@/components/course-form/edit-course";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +31,7 @@ import toast from "react-hot-toast";
 
 const MyCourses = () => {
   const user = useAuthStore((state) => state.user);
+  const [open, setOpen] = useState(false);
 
   const [editCourse, setEditCourse] = useState<ICourse | null>(null);
   const [deleteCourse, setDeleteCourse] = useState<ICourse | null>(null);
@@ -65,7 +67,12 @@ const MyCourses = () => {
     <div className="p-5">
       <div className="flex justify-between">
         <h1 className="text-3xl font-bold">Your courses</h1>
-        <Dialog>
+        <Dialog
+          open={open || editCourse !== null}
+          onOpenChange={(val) =>
+            editCourse ? setEditCourse(null) : setOpen(val)
+          }
+        >
           <DialogTrigger asChild>
             <Button>
               <Plus />
@@ -73,11 +80,18 @@ const MyCourses = () => {
             </Button>
           </DialogTrigger>
           <DialogContent className="overflow-y-auto max-h-dvh">
-            <DialogTitle>Create Course</DialogTitle>
+            <DialogTitle>
+              {editCourse ? "Edit Course" : "Create Course"}
+            </DialogTitle>
             <DialogDescription className="sr-only">
-              Create a new course
+              {editCourse ? "Edit a old course" : "Create a new course"}
             </DialogDescription>
-            <CreateCourse />
+            <CreateCourse
+              onClose={() =>
+                editCourse ? setEditCourse(null) : setOpen(false)
+              }
+              course={editCourse}
+            />
           </DialogContent>
         </Dialog>
       </div>
@@ -126,14 +140,20 @@ const MyCourses = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      <Dialog open={!!editCourse} onOpenChange={() => setEditCourse(null)}>
+      {/*<Dialog open={!!editCourse} onOpenChange={() => setEditCourse(null)}>
         <DialogContent>
           <DialogTitle>Edit course</DialogTitle>
           <DialogDescription className="sr-only">
             Edit a old course
           </DialogDescription>
+          {!!editCourse && (
+            <EditCourse
+              course={editCourse}
+              onClose={() => setEditCourse(null)}
+            />
+          )}
         </DialogContent>
-      </Dialog>
+      </Dialog>*/}
     </div>
   );
 };

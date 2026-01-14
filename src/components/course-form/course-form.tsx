@@ -2,7 +2,12 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Preview from "./preview";
 import { useRef, useState } from "react";
-import { courseFormSchema, type CourseFormValues } from "./schema";
+import {
+  createCourseSchema,
+  editCourseSchema,
+  type CreateCourseValues,
+  type EditCourseValues,
+} from "./schema";
 import { axiosClient } from "@/lib/axios";
 import toast from "react-hot-toast";
 import { Input } from "../ui/input";
@@ -15,13 +20,18 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
-import { COURSE_CONTENT_TYPES, type ICourseContentTypes } from "@/types";
+import {
+  COURSE_CONTENT_TYPES,
+  type ICourse,
+  type ICourseContentTypes,
+} from "@/types";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 import { Spinner } from "../ui/spinner";
 import { Textarea } from "../ui/textarea";
 import { ImageIcon, VideoIcon, X } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import { usePostHook } from "@/hooks/usePostQuery";
+import { usePatchHook } from "@/hooks/usePatchQuery";
 
 interface IFiles {
   image: File | null;
@@ -64,7 +74,13 @@ const FilePreview = ({
   );
 };
 
-const CreateCourse = () => {
+const CreateCourse = ({
+  course,
+  onClose,
+}: {
+  onClose: () => void;
+  course: ICourse | null;
+}) => {
   const fileImageRef = useRef<HTMLInputElement>(null);
   const fileVideoRef = useRef<HTMLInputElement>(null);
   const [uploadedFiles, setUploadedFiles] = useState<IFiles>({
@@ -72,21 +88,27 @@ const CreateCourse = () => {
     video: null,
   });
   const [isPreview, setIsPreview] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
   const user = useAuthStore((state) => state.user);
+  const isEdit = !!course;
 
-  const { mutateAsync: createCourse } = usePostHook({
+  const { mutateAsync: createCourse, isPending: isCreating } = usePostHook({
     mutationKey: ["USER_COURSES", user?.email],
     mutationFn: async (data: FormData) =>
       await axiosClient.post("/courses/", data),
   });
-  const methods = useForm<CourseFormValues>({
-    resolver: zodResolver(courseFormSchema),
+  const { mutateAsync: editCourse, isPending: isEditing } = usePatchHook({
+    mutationKey: ["USER_COURSES", user?.email],
+    mutationFn: async ({ data, id }: { data: FormData; id: number }) =>
+      await axiosClient.patch(`/courses/${id}/`, data),
+  });
+
+  const methods = useForm<CreateCourseValues | EditCourseValues>({
+    resolver: zodResolver(isEdit ? editCourseSchema : createCourseSchema),
     defaultValues: {
-      name: "",
-      type: "public",
-      language: "",
-      desc: "",
+      name: isEdit ? course.name : "",
+      type: isEdit ? course.type : "public",
+      language: isEdit ? course.language : "",
+      desc: isEdit ? course.desc : "",
     },
   });
 
@@ -137,7 +159,7 @@ const CreateCourse = () => {
     }));
 
     if (type === "image") {
-      methods.setValue("cover_image", undefined as any, {
+      methods.setValue("cover_image", undefined, {
         shouldValidate: true,
       });
     }
@@ -149,14 +171,14 @@ const CreateCourse = () => {
     }
   };
 
-  const onSubmit = async (formValue: CourseFormValues) => {
-    setIsCreating(true);
+  const onSubmit = async (formValue: CreateCourseValues | EditCourseValues) => {
     try {
       const formData = new FormData();
-      formData.append("cover_image", formValue.cover_image);
-      if (formValue.intro_video) {
+      if (formValue.cover_image)
+        formData.append("cover_image", formValue.cover_image);
+      if (formValue.intro_video)
         formData.append("intro_video", formValue.intro_video);
-      }
+
       formData.append("name", formValue.name);
       formData.append("desc", formValue.desc);
       formData.append("language", formValue.language);
@@ -164,14 +186,18 @@ const CreateCourse = () => {
       for (const [key, value] of formData.entries()) {
         console.log(key, value);
       }
-      const { data: course } = await createCourse(formData);
-      console.log(course);
-      toast.success("Created!");
+      if (isEdit) {
+        await editCourse({ data: formData, id: course.id });
+        toast.success("Edited!");
+      } else {
+        await createCourse(formData);
+        toast.success("Created!");
+      }
+      onClose();
     } catch (error) {
       console.error(error);
       toast.error("Error");
     }
-    setIsCreating(false);
   };
 
   return (
@@ -303,10 +329,12 @@ const CreateCourse = () => {
             Preview
           </Button>
           <Button type="submit" disabled={isCreating}>
-            {isCreating ? (
+            {isCreating || isEditing ? (
               <>
-                Creating <Spinner />
+                {isCreating ? "Creating" : "Editing"} <Spinner />
               </>
+            ) : isEdit ? (
+              "Edit"
             ) : (
               "Create"
             )}
