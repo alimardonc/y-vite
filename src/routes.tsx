@@ -1,7 +1,6 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import Dashboard from "./pages/Dashboard";
 import AppLayout from "./App";
-import Courses from "./pages/courses/courses";
 import Course from "./pages/course/course";
 import Lesson from "./pages/lesson/lesson";
 import Login from "./pages/login";
@@ -10,7 +9,7 @@ import Profile from "./pages/profile/profile";
 import LoginLayout from "./components/providers/login";
 import MyCourses from "./pages/my-courses/courses";
 import EditCard from "./pages/profile/edit-card";
-import NotFound from "./pages/not-found";
+import Register from "./pages/register";
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +18,10 @@ export const router = createBrowserRouter([
       {
         path: "/login",
         Component: Login,
+      },
+      {
+        path: "/register",
+        Component: Register,
       },
     ],
   },
@@ -41,10 +44,6 @@ export const router = createBrowserRouter([
             Component: Profile,
           },
           {
-            path: "/courses",
-            Component: Courses,
-          },
-          {
             path: "/lesson/:id",
             Component: Lesson,
           },
@@ -60,7 +59,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "*",
-        element: <NotFound />,
+        element: <Navigate to={"/dashboard"} />,
       },
     ],
   },

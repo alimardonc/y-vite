@@ -12,15 +12,23 @@ import { useNavigate } from "react-router";
 import { useAuthStore } from "@/store/auth";
 import { AxiosError } from "axios";
 
-const formSchema = z.object({
-  email: z.email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters" })
-    .max(50, { message: "Password must be at most 50 characters" }),
-});
+const formSchema = z
+  .object({
+    email: z.email({ message: "Invalid email address" }),
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters" })
+      .max(50, { message: "Password must be at most 50 characters" }),
+  })
+  .extend({
+    confirmPassword: z.string({ error: "Passwords do not match" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
-const LoginClient = () => {
+const Register = () => {
   const [isPending, setIsPending] = useState(false);
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
@@ -30,16 +38,17 @@ const LoginClient = () => {
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
   async function onSubmit(formData: z.infer<typeof formSchema>) {
     setIsPending(true);
     try {
-      const reqUrl = "/auth/login/";
+      const reqUrl = "/auth/register/";
       const { data } = await axiosClient.post(reqUrl, formData);
       login(data);
-      toast.success("Login successful!");
+      toast.success("Registration successful!");
       navigate("/dashboard");
     } catch (error: typeof AxiosError | unknown) {
       if (error instanceof AxiosError) {
@@ -57,11 +66,11 @@ const LoginClient = () => {
   return (
     <div className="flex items-center justify-center h-dvh">
       <form
-        key={"login"}
+        key={"register"}
         onSubmit={form.handleSubmit(onSubmit)}
         className="bg-card rounded-md p-5 flex flex-col justify-center items-center max-w-80 w-full gap-3"
       >
-        <h3 className="text-xl font-bold">Welcome back</h3>
+        <h3 className="text-xl font-bold">Sign Up</h3>
         {/*<Field>
           <Button variant="outline">
             <FaGoogle />
@@ -106,6 +115,20 @@ const LoginClient = () => {
           )}
         />
 
+        <Controller
+          name="confirmPassword"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="confirmPassword">
+                Confirm Password
+              </FieldLabel>
+              <Input type="password" {...field} placeholder="********" />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+
         <Button className="w-full" disabled={isPending}>
           {isPending ? (
             <>
@@ -113,16 +136,16 @@ const LoginClient = () => {
               <Spinner />{" "}
             </>
           ) : (
-            "Login"
+            "Sign Up"
           )}
         </Button>
         <div className="flex justify-center w-full text-sm text-muted-foreground gap-2">
-          Don't have an account?
+          Have an account?
           <span
             className="underline cursor-pointer"
-            onClick={() => navigate("/register")}
+            onClick={() => navigate("/login")}
           >
-            Sign up
+            Login
           </span>
         </div>
       </form>
@@ -130,4 +153,4 @@ const LoginClient = () => {
   );
 };
 
-export default LoginClient;
+export default Register;

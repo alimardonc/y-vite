@@ -1,6 +1,4 @@
 import * as React from "react";
-import { LayoutDashboard, Settings, SquareTerminal, User } from "lucide-react";
-
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { Header } from "@/components/header";
@@ -12,42 +10,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { NavLink } from "react-router";
-
-const data = {
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Courses",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "Courses",
-          url: "/courses",
-        },
-        {
-          title: "My Courses",
-          url: "/my-courses",
-        },
-      ],
-    },
-    {
-      title: "Profile",
-      url: "/profile",
-      icon: User,
-    },
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings,
-    },
-  ],
-};
+import { sidebarData } from "@/constants/side-bar-data";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -58,7 +21,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarHeader>
       </NavLink>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={sidebarData.navMain} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />
