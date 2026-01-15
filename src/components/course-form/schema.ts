@@ -24,5 +24,51 @@ export const editCourseSchema = z.object({
   intro_video: z.instanceof(File).optional(),
 });
 
+export const ChapterSchema = z.object({
+  name: z.string().min(3).max(50),
+});
+
+export const QuizSchema = z
+  .object({
+    quest: z.string().trim().min(1, "Question bo‘sh bo‘lmasligi kerak"),
+
+    variants: z
+      .array(
+        z.object({
+          value: z.string().trim(),
+        }),
+      )
+      .refine(
+        (variants) => {
+          // faqat bo‘sh bo‘lmagan variantlarni hisoblaymiz
+          const filledVariants = variants.filter((v) => v.value.length > 0);
+          return filledVariants.length >= 2;
+        },
+        {
+          message: "Kamida 2 ta variant bo‘lishi kerak",
+          path: [],
+        },
+      ),
+
+    answer: z
+      .array(z.number().int().min(0))
+      .min(1, "Kamida 1 ta javob tanlanishi kerak"),
+  })
+  .superRefine((data, ctx) => {
+    const filledVariants = data.variants.filter((v) => v.value.length > 0);
+
+    data.answer.forEach((index) => {
+      if (index >= filledVariants.length) {
+        ctx.addIssue({
+          path: ["answer"],
+          message: "Answer mavjud variantga mos kelmaydi",
+          code: z.ZodIssueCode.custom,
+        });
+      }
+    });
+  });
+
 export type CreateCourseValues = z.infer<typeof createCourseSchema>;
+export type QuizType = z.infer<typeof QuizSchema>;
 export type EditCourseValues = z.infer<typeof editCourseSchema>;
+export type ChapterValues = z.infer<typeof ChapterSchema>;

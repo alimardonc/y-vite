@@ -1,14 +1,17 @@
-import { z } from "zod";
-
 export interface ICourse {
   id: number;
   name: string;
-  desc: string;
   type: ICourseContentTypes;
+  desc: string;
   language: string;
-  cover_image?: string | null;
-  intro_video?: string | null;
-  my_roles: string[];
+  cover_image: string | null;
+  intro_video: string | null;
+  owner?: IUser;
+  mentors: IUser[];
+  chapters: IChapter[];
+  lessons: [];
+  created_at: Date;
+  my_roles?: string[];
 }
 
 export interface IUser {
@@ -20,6 +23,13 @@ export interface IUser {
   avatar: string;
 }
 
+export interface IChapter {
+  id: number;
+  course: number;
+  name: string;
+  lessons: [];
+}
+
 export const COURSE_CONTENT_TYPES = [
   "public",
   "private",
@@ -28,45 +38,3 @@ export const COURSE_CONTENT_TYPES = [
 ] as const;
 
 export type ICourseContentTypes = (typeof COURSE_CONTENT_TYPES)[number];
-
-export const QuizSchema = z
-  .object({
-    quest: z.string().trim().min(1, "Question bo‘sh bo‘lmasligi kerak"),
-
-    variants: z
-      .array(
-        z.object({
-          value: z.string().trim(),
-        }),
-      )
-      .refine(
-        (variants) => {
-          // faqat bo‘sh bo‘lmagan variantlarni hisoblaymiz
-          const filledVariants = variants.filter((v) => v.value.length > 0);
-          return filledVariants.length >= 2;
-        },
-        {
-          message: "Kamida 2 ta variant bo‘lishi kerak",
-          path: [],
-        },
-      ),
-
-    answer: z
-      .array(z.number().int().min(0))
-      .min(1, "Kamida 1 ta javob tanlanishi kerak"),
-  })
-  .superRefine((data, ctx) => {
-    const filledVariants = data.variants.filter((v) => v.value.length > 0);
-
-    data.answer.forEach((index) => {
-      if (index >= filledVariants.length) {
-        ctx.addIssue({
-          path: ["answer"],
-          message: "Answer mavjud variantga mos kelmaydi",
-          code: z.ZodIssueCode.custom,
-        });
-      }
-    });
-  });
-
-export type QuizType = z.infer<typeof QuizSchema>;

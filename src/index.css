@@ -200,3 +200,10 @@ img {
         @apply bg-background text-foreground;
     }
 }
+#controller-icons {
+    display: none;
+}
+
+#controller-container:hover #controller-icons {
+    display: flex;
+}

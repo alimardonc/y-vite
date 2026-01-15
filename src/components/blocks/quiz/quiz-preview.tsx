@@ -1,4 +1,4 @@
-import type { QuizType } from "@/types";
+import type { QuizType } from "@/components/course-form/schema";
 
 interface IProps {
   value: QuizType[];

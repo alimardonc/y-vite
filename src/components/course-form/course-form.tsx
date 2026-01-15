@@ -74,12 +74,14 @@ const FilePreview = ({
   );
 };
 
-const CreateCourse = ({
+const CourseForm = ({
   course,
   onClose,
+  confirmText,
 }: {
+  course?: ICourse | null;
   onClose: () => void;
-  course: ICourse | null;
+  confirmText: string;
 }) => {
   const fileImageRef = useRef<HTMLInputElement>(null);
   const fileVideoRef = useRef<HTMLInputElement>(null);
@@ -333,10 +335,8 @@ const CreateCourse = ({
               <>
                 {isCreating ? "Creating" : "Editing"} <Spinner />
               </>
-            ) : isEdit ? (
-              "Edit"
             ) : (
-              "Create"
+              confirmText
             )}
           </Button>
         </div>
@@ -356,4 +356,4 @@ const CreateCourse = ({
   );
 };
 
-export default CreateCourse;
+export default CourseForm;

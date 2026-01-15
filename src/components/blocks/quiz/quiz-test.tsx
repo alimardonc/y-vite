@@ -1,3 +1,4 @@
+import { QuizSchema, type QuizType } from "@/components/course-form/schema";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import {
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/pagination";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { QuizSchema, type QuizType } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, CirclePlus, Trash2, X } from "lucide-react";
 import { useEffect, useState, type SetStateAction } from "react";
