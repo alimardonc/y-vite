@@ -1,4 +1,4 @@
-import { LayoutDashboard, Settings, SquareTerminal, User } from "lucide-react";
+import { LayoutDashboard, SquareTerminal, User } from "lucide-react";
 
 export const sidebarData = {
   navMain: [
@@ -16,11 +16,6 @@ export const sidebarData = {
       title: "Profile",
       url: "/profile",
       icon: User,
-    },
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings,
     },
   ],
 };
