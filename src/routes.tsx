@@ -43,10 +43,7 @@ export const router = createBrowserRouter([
             path: "/profile",
             Component: Profile,
           },
-          {
-            path: "/lesson/:id",
-            Component: Lesson,
-          },
+
           {
             path: "/my-courses",
             Component: MyCourses,
@@ -54,8 +51,14 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: "/course/:id",
+        path: "/course/:cId",
         Component: Course,
+        children: [
+          {
+            path: "lesson/:lId",
+            Component: Lesson,
+          },
+        ],
       },
       {
         path: "*",

@@ -16,7 +16,6 @@ const ChapterForm = ({
   course,
   confirmText,
   onClose,
-  refetch,
 }: {
   chapter?: IChapter | null;
   course: ICourse;
@@ -37,7 +36,7 @@ const ChapterForm = ({
   } = methods;
 
   const { mutateAsync: createChapter, isPending: isCreating } = usePostHook({
-    mutationKey: ["COURSE", course.id],
+    mutationKey: ["COURSE", course.id.toString()],
     mutationFn: async (data: ChapterValues) => {
       await axiosClient.post(`/courses/${course.id}/chapters/`, {
         ...data,
@@ -47,7 +46,7 @@ const ChapterForm = ({
   });
 
   const { mutateAsync: editChapter, isPending: isEditing } = usePatchHook({
-    mutationKey: ["COURSE", course.id],
+    mutationKey: ["COURSE", course.id.toString()],
     mutationFn: async ({
       data,
       chapterId,
@@ -75,7 +74,6 @@ const ChapterForm = ({
         await createChapter(formValue);
         toast.success("Created!");
       }
-      refetch();
       onClose();
     } catch {
       toast.error("Error!");
@@ -92,7 +90,7 @@ const ChapterForm = ({
           <FieldLabel>Name</FieldLabel>
           <Input
             {...methods.register("name")}
-            placeholder="Course Name"
+            placeholder="Chapter Name"
             disabled={isCreating}
           />
           {errors.name && <FieldError errors={[errors.name]} />}

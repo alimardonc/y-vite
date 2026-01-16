@@ -1,17 +1,7 @@
 "use client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/constants/query-client";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      retryOnMount: false,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
 
 const QueryProvider = ({
   children,

@@ -28,7 +28,16 @@ export const ChapterSchema = z.object({
   name: z.string().min(3).max(50),
 });
 
+export const LessonSchema = z.object({
+  chapters: z.number({ error: "Chapters required" }),
+  type: z.string().min(1),
+  name: z.string().min(3).max(50),
+  content: z.string(),
+  minutes: z.number(),
+});
+
 export const QuizSchema = z
+
   .object({
     quest: z.string().trim().min(1, "Question bo‘sh bo‘lmasligi kerak"),
 
@@ -72,3 +81,4 @@ export type CreateCourseValues = z.infer<typeof createCourseSchema>;
 export type QuizType = z.infer<typeof QuizSchema>;
 export type EditCourseValues = z.infer<typeof editCourseSchema>;
 export type ChapterValues = z.infer<typeof ChapterSchema>;
+export type LessonValues = z.infer<typeof LessonSchema>;

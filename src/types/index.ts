@@ -9,7 +9,7 @@ export interface ICourse {
   owner?: IUser;
   mentors: IUser[];
   chapters: IChapter[];
-  lessons: [];
+  lessons: ILesson[];
   created_at: Date;
   my_roles?: string[];
 }
@@ -27,7 +27,16 @@ export interface IChapter {
   id: number;
   course: number;
   name: string;
-  lessons: [];
+  lessons: ILesson[];
+}
+export interface ILesson {
+  id: number;
+  course: number;
+  chapter: number;
+  type: string;
+  name: string;
+  content: string;
+  minutes: number;
 }
 
 export const COURSE_CONTENT_TYPES = [

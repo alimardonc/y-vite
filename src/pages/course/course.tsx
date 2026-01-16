@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { Outlet, useNavigate, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { axiosClient } from "@/lib/axios";
 import type { IChapter, ICourse } from "@/types";
@@ -40,33 +40,41 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useDeleteHook } from "@/hooks/useDeleteQuery";
 import toast from "react-hot-toast";
+import LessonForm from "@/components/course-form/lesson-form";
 
 const Course = () => {
-  const params = useParams();
+  const { cId, lId } = useParams();
+  const navigate = useNavigate();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isChapterCreating, setIsChapterCreating] = useState(false);
   const [deleteChapter, setDeleteChapter] = useState<IChapter | null>(null);
   const [editChapter, setEditChapter] = useState<IChapter | null>(null);
 
-  console.log(editChapter);
-
   const { data, isLoading, refetch } = useQuery<ICourse>({
-    queryKey: ["COURSE", params.id],
+    queryKey: ["COURSE", cId],
     queryFn: async () => {
-      const res = await axiosClient.get("/courses/" + params.id);
+      const res = await axiosClient.get("/courses/" + cId);
       return res.data;
     },
   });
 
+  const { data: lesson } = useQuery({
+    queryKey: ["LESSON", lId],
+    queryFn: async () => {
+      const result = await axiosClient.get(`/lessons/${lId}/`);
+      return result.data;
+    },
+  });
+
   const { mutateAsync: handleDeleteChapter } = useDeleteHook({
-    mutationKey: ["COURSE", params.id],
+    mutationKey: ["COURSE", cId],
     mutationFn: async (chapterId: number) => {
       const res = await axiosClient.delete(`/chapters/${chapterId}/`);
       return res.data;
     },
   });
 
-  const onDelete = async (chapterId: number) => {
+  const onDeleteChapter = async (chapterId: number) => {
     try {
       await handleDeleteChapter(chapterId);
       refetch();
@@ -74,13 +82,12 @@ const Course = () => {
     } catch {
       toast.error("Error!");
     }
-    console.log(chapterId);
   };
 
   if (isLoading || !data) return <Loading />;
   return (
-    <>
-      <SidebarProvider>
+    <div className="flex">
+      <SidebarProvider className="w-[256px]">
         <Sidebar>
           <SidebarHeader>
             <TypographySmall className="text-[#fff9]">
@@ -88,7 +95,10 @@ const Course = () => {
             </TypographySmall>
           </SidebarHeader>
           <SidebarContent>
-            <Accordion type="multiple">
+            <Accordion
+              type="single"
+              defaultValue={lesson.chapter ? `item-${lesson.chapter}` : ""}
+            >
               {data.chapters.map((ch) => (
                 <AccordionItem
                   key={ch.id}
@@ -102,7 +112,37 @@ const Course = () => {
                       {ch.lessons.length}
                     </TypographyMuted>
                   </AccordionTrigger>
-                  <AccordionContent>a</AccordionContent>
+                  {ch.lessons.map((l) => (
+                    <AccordionContent key={l.id}>
+                      <Button
+                        className="w-full"
+                        variant={"ghost"}
+                        size={"sm"}
+                        onClick={() =>
+                          navigate(`/course/${data.id}/lesson/${l.id}`)
+                        }
+                      >
+                        {l.name}
+                      </Button>
+                    </AccordionContent>
+                  ))}
+                  <AccordionContent>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="w-full">
+                          <Plus />
+                          Create lesson
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogTitle>Create Lesson</DialogTitle>
+                        <DialogDescription className="sr-only">
+                          Create a new lesson
+                        </DialogDescription>
+                        <LessonForm chapter={ch} />
+                      </DialogContent>
+                    </Dialog>
+                  </AccordionContent>
                   <div
                     className="z-20 flex flex-row p-1 rounded-md gap-2 delay-100 transition-all hover:bg-[#fff2] absolute top-1 right-10"
                     id="controller-icons"
@@ -123,7 +163,10 @@ const Course = () => {
             </Accordion>
           </SidebarContent>
           <SidebarFooter className="w-full">
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <Dialog
+              open={isChapterCreating}
+              onOpenChange={setIsChapterCreating}
+            >
               <DialogTrigger asChild>
                 <Button>
                   <Plus />
@@ -133,7 +176,7 @@ const Course = () => {
               <DialogContent>
                 <DialogTitle>Create Chapter</DialogTitle>
                 <DialogDescription
-                  onClick={() => setIsOpen(true)}
+                  onClick={() => setIsChapterCreating(true)}
                   className="sr-only"
                 >
                   Create a new chapter
@@ -142,7 +185,7 @@ const Course = () => {
                   course={data}
                   refetch={refetch}
                   confirmText="Create"
-                  onClose={() => setIsOpen(false)}
+                  onClose={() => setIsChapterCreating(false)}
                 />
               </DialogContent>
             </Dialog>
@@ -167,7 +210,9 @@ const Course = () => {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-600 hover:bg-red-700"
-              onClick={() => (deleteChapter ? onDelete(deleteChapter.id) : {})}
+              onClick={() =>
+                deleteChapter ? onDeleteChapter(deleteChapter.id) : {}
+              }
             >
               Delete
             </AlertDialogAction>
@@ -192,7 +237,9 @@ const Course = () => {
           />
         </DialogContent>
       </Dialog>
-    </>
+
+      <Outlet />
+    </div>
   );
 };
 
